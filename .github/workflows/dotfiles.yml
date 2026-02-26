@@ -63,8 +63,11 @@ jobs:
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/home/testuser/dotfiles \
-            -e CI=true \
-            dotfiles-test bash /home/testuser/dotfiles/test.sh
+            -e GITHUB_TOKEN="${GITHUB_TOKEN}" \
+            -e AQUA_GITHUB_TOKEN="${GITHUB_TOKEN}" \
+            dotfiles-test bash -c "/home/testuser/dotfiles/scripts/test.sh && /home/testuser/dotfiles/scripts/test-tools.sh"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # --- native mode ---
       - name: Install chezmoi (native)
@@ -72,6 +75,13 @@ jobs:
         run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
       - name: Run test (native)
         if: matrix.mode == 'native'
-        run: bash test.sh "${{ github.workspace }}"
+        run: bash scripts/test.sh "${{ github.workspace }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AQUA_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run tool checks (native)
+        if: matrix.mode == 'native'
+        run: bash scripts/test-tools.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AQUA_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

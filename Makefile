@@ -14,8 +14,7 @@ run:
 test:
 	docker run --rm \
 		-v $(DOTFILES_DIR):/home/testuser/dotfiles \
-		-e CI=true \
-		$(IMAGE) bash /home/testuser/dotfiles/test.sh
+		$(IMAGE) bash -c "/home/testuser/dotfiles/scripts/test.sh && /home/testuser/dotfiles/scripts/test-tools.sh"
 
 shell:
 	docker run --rm -it \

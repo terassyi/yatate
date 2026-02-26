@@ -1,7 +1,10 @@
 FROM ubuntu:24.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Tokyo
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl git sudo \
+    ca-certificates curl file git sudo unzip xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -s /bin/bash testuser \

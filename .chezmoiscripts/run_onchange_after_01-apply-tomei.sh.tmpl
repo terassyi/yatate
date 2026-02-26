@@ -20,9 +20,9 @@ fi
 tomei init --yes
 tomei validate "$TOMEI_DIR"
 
-if [ "${CI:-}" = "true" ]; then
-    echo "CI: skipping tomei apply"
+if [ "${SKIP_TOMEI_APPLY:-}" = "true" ]; then
+    echo "Skipping tomei apply (SKIP_TOMEI_APPLY=true)"
 else
-    tomei apply "$TOMEI_DIR"
+    tomei apply --yes "$TOMEI_DIR" || echo "WARN: tomei apply exited with errors (some tools may have failed)"
     echo "tomei apply completed"
 fi
