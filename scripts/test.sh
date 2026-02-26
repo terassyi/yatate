@@ -28,6 +28,7 @@ files=(
     ~/.config/Code/User/keybindings.json
     ~/.config/zed/settings.json
     ~/.config/zed/keymap.json
+    ~/.config/dconf/gnome.ini
 )
 for f in "${files[@]}"; do
     test -f "$f" || { echo "FAIL: $f not found"; exit 1; }
@@ -76,6 +77,13 @@ echo "==> Neovim config check"
 grep -q 'lazy.nvim' ~/.config/nvim/init.lua || { echo "FAIL: nvim init.lua - lazy.nvim bootstrap"; exit 1; }
 grep -q 'colorscheme tokyonight' ~/.config/nvim/init.lua || { echo "FAIL: nvim init.lua - colorscheme"; exit 1; }
 grep -q 'mapleader' ~/.config/nvim/lua/keymaps.lua || { echo "FAIL: nvim keymaps - mapleader"; exit 1; }
+
+echo "==> Dconf settings check"
+dconf_ini=~/.config/dconf/gnome.ini
+grep -q "color-scheme='prefer-dark'" "$dconf_ini" || { echo "FAIL: dconf - color-scheme"; exit 1; }
+grep -q "dock-position='BOTTOM'" "$dconf_ini" || { echo "FAIL: dconf - dock-position"; exit 1; }
+# テンプレート変数の展開確認 (testuser)
+grep -q '/home/testuser/' "$dconf_ini" || { echo "FAIL: dconf - username template"; exit 1; }
 
 echo "==> Zed settings check"
 grep -q '"vim_mode": true' ~/.config/zed/settings.json || { echo "FAIL: zed settings - vim_mode"; exit 1; }
