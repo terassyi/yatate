@@ -1,0 +1,14 @@
+{{ if eq .os "darwin" -}}
+#!/bin/bash
+set -euo pipefail
+# hash: {{ include "dot_config/Code/User/settings.json" | sha256sum }}
+# hash: {{ include "dot_config/Code/User/keybindings.json" | sha256sum }}
+
+VSCODE_DIR="${HOME}/Library/Application Support/Code/User"
+CHEZMOI_DIR="${HOME}/.config/Code/User"
+
+mkdir -p "$VSCODE_DIR"
+cp "$CHEZMOI_DIR/settings.json" "$VSCODE_DIR/settings.json"
+cp "$CHEZMOI_DIR/keybindings.json" "$VSCODE_DIR/keybindings.json"
+echo "VSCode settings copied to $VSCODE_DIR"
+{{ end -}}

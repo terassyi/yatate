@@ -24,6 +24,8 @@ files=(
     ~/.config/nvim/lua/keymaps.lua
     ~/.config/nvim/lua/plugins.lua
     ~/.config/nvim/lua/lsp.lua
+    ~/.config/Code/User/settings.json
+    ~/.config/Code/User/keybindings.json
 )
 for f in "${files[@]}"; do
     test -f "$f" || { echo "FAIL: $f not found"; exit 1; }
