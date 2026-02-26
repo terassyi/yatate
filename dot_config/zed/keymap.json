@@ -1,0 +1,86 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-'": "terminal_panel::ToggleFocus",
+      "ctrl-]": "agent::ToggleFocus",
+    },
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "ctrl-'": "editor::ToggleFocus",
+      "ctrl-j": "terminal_panel::ToggleFocus"
+    }
+  },
+  {
+    "context": "Dock",
+    "bindings": {}
+  },
+  {
+    "context": "ProjectPanel",
+    "bindings": {
+      "space n": "project_panel::NewFile",
+      "space f": "project_panel::NewDirectory",
+      "space d": "project_panel::Delete",
+      "space r": "project_panel::Rename",
+      "space o": "project_panel::Open",
+      "space v": "project_panel::OpenSplitVertical",
+      "space h": "project_panel::OpenSplitHorizontal",
+      "space b": "workspace::ToggleLeftDock",
+      "space e": "editor::ToggleFocus"
+    },
+  },
+  {
+    "context": "Editor && vim_mode == normal",
+    "bindings": {
+      "space w": "workspace::Save",
+      "space q": "workspace::CloseAllItemsAndPanes",
+      "space b": "workspace::ToggleLeftDock",
+      "space e": "project_panel::ToggleFocus",
+      "space /": "editor::ToggleComments",
+      // --- Panel Move ---
+      "space u": "pane::ActivateNextItem",
+      "space y": "pane::ActivatePreviousItem",
+      "space l": "workspace::ActivatePaneRight",
+      "space h": "workspace::ActivatePaneLeft",
+      "space j": "workspace::ActivatePaneDown",
+      "space k": "workspace::ActivatePaneUp",
+      // --- Move Item to Pane ---
+      "space shift-l": "pane::SplitRight",
+      "space shift-h": "pane::SplitLeft",
+      "space shift-j": "pane::SplitDown",
+      "space shift-k": "pane::SplitUp",
+      // --- Navigation ---
+      "g k": "editor::GoToDefinition",
+      "g j": "editor::GoToTypeDefinition",
+      "g i": "editor::GoToImplementation",
+      "g f": "editor::FindAllReferences",
+      "g +": "pane::GoBack",
+      "g -": "pane::GoForward",
+      // --- Refactoring & Actions ---
+      "g r": "editor::Rename",
+      "space a": "editor::ToggleCodeActions",
+      "space =": "editor::Format",
+      // --- Information & Search ---
+      "K": "editor::Hover",
+      "space s": "outline::Toggle",
+      "space shift-s": "project_symbols::Toggle",
+      "space p": "editor::ShowSignatureHelp",
+      "space t": "workspace::ToggleBottomDock"
+    },
+  },
+  {
+    "context": "Editor && vim_mode == visual",
+    "bindings": {
+      "space /": "editor::ToggleComments"
+    },
+  },
+]

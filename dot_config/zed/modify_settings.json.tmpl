@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+
+MANAGED='{{ include "dot_config/zed/zed-managed-settings.json" }}'
+
+CURRENT="$(cat)"
+
+# First run: no existing file -> output managed settings as-is
+if [ -z "$CURRENT" ]; then
+    echo "$MANAGED" | jq .
+    exit 0
+fi
+
+# Strip JSONC comments and trailing commas from existing file
+strip_jsonc() {
+    sed -E 's|([^:])//.*$|\1|; s|^//.*$||' | \
+    sed -E 's/,[[:space:]]*([\]}])/\1/g'
+}
+
+CURRENT_CLEAN="$(echo "$CURRENT" | strip_jsonc)"
+
+# Extract ssh_connections from existing settings
+SSH="$(echo "$CURRENT_CLEAN" | jq -c 'if has("ssh_connections") then .ssh_connections else empty end' 2>/dev/null || echo "")"
+
+if [ -z "$SSH" ]; then
+    echo "$MANAGED" | jq .
+else
+    echo "$MANAGED" | jq --argjson ssh "$SSH" '{ssh_connections: $ssh} + .'
+fi

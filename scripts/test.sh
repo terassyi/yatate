@@ -26,6 +26,8 @@ files=(
     ~/.config/nvim/lua/lsp.lua
     ~/.config/Code/User/settings.json
     ~/.config/Code/User/keybindings.json
+    ~/.config/zed/settings.json
+    ~/.config/zed/keymap.json
 )
 for f in "${files[@]}"; do
     test -f "$f" || { echo "FAIL: $f not found"; exit 1; }
@@ -74,5 +76,9 @@ echo "==> Neovim config check"
 grep -q 'lazy.nvim' ~/.config/nvim/init.lua || { echo "FAIL: nvim init.lua - lazy.nvim bootstrap"; exit 1; }
 grep -q 'colorscheme tokyonight' ~/.config/nvim/init.lua || { echo "FAIL: nvim init.lua - colorscheme"; exit 1; }
 grep -q 'mapleader' ~/.config/nvim/lua/keymaps.lua || { echo "FAIL: nvim keymaps - mapleader"; exit 1; }
+
+echo "==> Zed settings check"
+grep -q '"vim_mode": true' ~/.config/zed/settings.json || { echo "FAIL: zed settings - vim_mode"; exit 1; }
+grep -q '"Tokyo Night"' ~/.config/zed/settings.json || { echo "FAIL: zed settings - theme"; exit 1; }
 
 echo "All checks passed"

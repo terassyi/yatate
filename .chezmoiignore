@@ -4,3 +4,4 @@ Makefile
 Dockerfile
 README.md
 scripts/
+.config/zed/zed-managed-settings.json

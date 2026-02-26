@@ -19,7 +19,7 @@ done
 if [ ${#MISSING[@]} -gt 0 ]; then
     echo "Installing missing packages: ${MISSING[*]}"
     sudo apt-get update
-    sudo apt-get install -y --no-install-recommends "${MISSING[@]}"
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${MISSING[@]}"
 else
     echo "All required packages already installed"
 fi
@@ -29,6 +29,13 @@ if ! locale -a 2>/dev/null | grep -q "en_US.utf8"; then
 fi
 
 {{ else if .is_darwin -}}
+if ! command -v jq &>/dev/null; then
+    echo "Installing jq via Homebrew..."
+    brew install jq
+else
+    echo "jq already installed: $(jq --version)"
+fi
+
 if ! command -v nvim &>/dev/null; then
     echo "Installing neovim via Homebrew..."
     brew install neovim

@@ -3,6 +3,7 @@ curl
 file
 fish
 git
+jq
 locales
 neovim
 sudo
