@@ -1,0 +1,8 @@
+ca-certificates
+curl
+file
+fish
+git
+locales
+neovim
+sudo

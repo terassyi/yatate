@@ -1,0 +1,77 @@
+name: Dotfiles
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install chezmoi
+        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+      - name: Install tomei
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/terassyi/tomei/main/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Install fish
+        run: sudo apt-get update && sudo apt-get install -y fish
+      - name: Validate chezmoi templates
+        run: |
+          chezmoi init --source=. --no-tty
+          chezmoi execute-template --source=. --no-tty < /dev/null > /dev/null
+          chezmoi diff --source=. --no-tty || true
+      - name: Validate tomei manifests
+        run: tomei validate dot_config/tomei/
+      - name: Check fish syntax
+        run: |
+          chezmoi init --source=. --no-tty
+          find . -name "*.fish" -print0 | xargs -0 -I{} fish -n "{}"
+
+  test:
+    needs: validate
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            arch: amd64
+            mode: container
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+            mode: container
+          - runner: ubuntu-24.04
+            arch: amd64
+            mode: native
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+            mode: native
+          - runner: macos-latest
+            arch: arm64
+            mode: native
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v6
+
+      # --- container mode ---
+      - name: Build test image
+        if: matrix.mode == 'container'
+        run: docker build -t dotfiles-test .
+      - name: Run test in container
+        if: matrix.mode == 'container'
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/home/testuser/dotfiles \
+            -e CI=true \
+            dotfiles-test bash /home/testuser/dotfiles/test.sh
+
+      # --- native mode ---
+      - name: Install chezmoi (native)
+        if: matrix.mode == 'native'
+        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+      - name: Run test (native)
+        if: matrix.mode == 'native'
+        run: bash test.sh "${{ github.workspace }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
