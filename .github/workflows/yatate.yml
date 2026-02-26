@@ -1,4 +1,4 @@
-name: Dotfiles
+name: Yatate
 on:
   pull_request:
   push:
@@ -57,15 +57,15 @@ jobs:
       # --- container mode ---
       - name: Build test image
         if: matrix.mode == 'container'
-        run: docker build -t dotfiles-test .
+        run: docker build -t yatate .
       - name: Run test in container
         if: matrix.mode == 'container'
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}:/home/testuser/dotfiles \
+            -v ${{ github.workspace }}:/home/testuser/yatate \
             -e GITHUB_TOKEN="${GITHUB_TOKEN}" \
             -e AQUA_GITHUB_TOKEN="${GITHUB_TOKEN}" \
-            dotfiles-test bash -c "/home/testuser/dotfiles/scripts/test.sh && /home/testuser/dotfiles/scripts/test-tools.sh"
+            yatate bash -c "/home/testuser/yatate/scripts/test.sh && /home/testuser/yatate/scripts/test-tools.sh"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

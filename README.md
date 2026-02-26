@@ -1,6 +1,6 @@
-# dotfiles
+# yatate
 
-[chezmoi](https://www.chezmoi.io/) + [tomei](https://github.com/terassyi/tomei) による dotfiles 管理。
+[chezmoi](https://www.chezmoi.io/) + [tomei](https://github.com/terassyi/tomei) による yatate 管理。
 
 ## サポート環境
 
@@ -12,7 +12,7 @@
 ## ディレクトリ構成
 
 ```
-dotfiles/
+yatate/
 ├── .chezmoi.toml.tmpl          # chezmoi 設定テンプレート
 ├── .chezmoidata.toml.tmpl      # ホスト判定ロジック（テンプレートデータ）
 ├── .chezmoiignore              # chezmoi 除外パターン
@@ -31,11 +31,11 @@ dotfiles/
 ## セットアップ
 
 ```sh
-# chezmoi で dotfiles を適用
-chezmoi init --apply --source=./dotfiles
+# chezmoi で yatate を適用
+chezmoi init --apply --source=./yatate
 
 # tomei でツールをインストール
-tomei apply dotfiles/dot_config/tomei/
+tomei apply yatate/dot_config/tomei/
 ```
 
 ## テスト
@@ -52,7 +52,7 @@ make clean    # イメージ削除
 
 ## CI
 
-`.github/workflows/dotfiles.yml` で `dotfiles/` 配下の変更時に自動テストが走る。
+`.github/workflows/yatate.yml` で `yatate/` 配下の変更時に自動テストが走る。
 
 - **validate**: chezmoi テンプレート検証、tomei マニフェスト検証、fish 構文チェック
 - **test**: container モード + native モードのマトリックス（linux/amd64, linux/arm64, macOS/arm64）

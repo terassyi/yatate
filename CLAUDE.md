@@ -1,7 +1,7 @@
 # Terakoya
 
 開発環境・インフラ構成管理リポジトリ。
-tomei + chezmoi による dotfiles 管理、NixOS システム設定、Kubernetes 関連のコンテナ・マニフェストを管理する。
+tomei + chezmoi による yatate 管理、NixOS システム設定、Kubernetes 関連のコンテナ・マニフェストを管理する。
 
 ## 基本理念
 
@@ -19,7 +19,7 @@ tomei + chezmoi による dotfiles 管理、NixOS システム設定、Kubernete
 - `kindcluster/` - Kind クラスタのテスト設定
 - `manifest/` - Kubernetes マニフェスト
 - `.github/` - GitHub Actions ワークフロー・Dependabot 設定
-- `dotfiles/` - chezmoi + tomei による dotfiles 管理
+- `yatate/` - chezmoi + tomei による yatate 管理
   - `Dockerfile` - テスト用 Ubuntu コンテナ（chezmoi + tomei 入り）
   - `Makefile` - ローカル開発: build, run, test, shell, clean, install
   - `dot_config/tomei/` - tomei CUE マニフェスト（ツール定義）
@@ -57,13 +57,13 @@ just run       # 開発コンテナ起動
 ## CI/CD
 
 - `container.yaml`: `containers/` 配下の変更時のみコンテナをビルド・プッシュ（ghcr.io）
-- `dotfiles.yml`: `dotfiles/` 配下の変更時に validate → test（matrix: container/native × arch）
+- `yatate.yml`: `yatate/` 配下の変更時に validate → test（matrix: container/native × arch）
 - Dependabot: GitHub Actions の自動更新（週次、PR 集約）
 
-## dotfiles テスト
+## yatate テスト
 
 ```sh
-# dotfiles/ ディレクトリで実行
+# yatate/ ディレクトリで実行
 make build    # テスト用 Docker イメージをビルド
 make test     # chezmoi init/diff + tomei validate をコンテナ内で実行
 make shell    # デバッグ用にコンテナへ入る

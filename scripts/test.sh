@@ -1,13 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
-DOTFILES_SOURCE="${1:-/home/testuser/dotfiles}"
+YATATE_SOURCE="${1:-/home/testuser/yatate}"
 
 echo "==> chezmoi init"
-chezmoi init --source="$DOTFILES_SOURCE" --no-tty
+chezmoi init --source="$YATATE_SOURCE" --no-tty
 
 echo "==> chezmoi apply"
-chezmoi apply --source="$DOTFILES_SOURCE" --no-tty
+chezmoi apply --source="$YATATE_SOURCE" --no-tty
 
 echo "==> Checking deployed files"
 files=(

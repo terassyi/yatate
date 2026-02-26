@@ -1,5 +1,5 @@
-IMAGE := dotfiles-test
-DOTFILES_DIR := $(shell pwd)
+IMAGE := yatate
+YATATE_DIR := $(shell pwd)
 
 .PHONY: build run test shell clean install
 
@@ -8,21 +8,21 @@ build:
 
 run:
 	docker run --rm -it \
-		-v $(DOTFILES_DIR):/home/testuser/dotfiles \
+		-v $(YATATE_DIR):/home/testuser/yatate \
 		$(IMAGE) fish
 
 test:
 	docker run --rm \
-		-v $(DOTFILES_DIR):/home/testuser/dotfiles \
-		$(IMAGE) bash -c "/home/testuser/dotfiles/scripts/test.sh && /home/testuser/dotfiles/scripts/test-tools.sh"
+		-v $(YATATE_DIR):/home/testuser/yatate \
+		$(IMAGE) bash -c "/home/testuser/yatate/scripts/test.sh && /home/testuser/yatate/scripts/test-tools.sh"
 
 shell:
 	docker run --rm -it \
-		-v $(DOTFILES_DIR):/home/testuser/dotfiles \
+		-v $(YATATE_DIR):/home/testuser/yatate \
 		$(IMAGE) bash
 
 clean:
 	docker rmi -f $(IMAGE)
 
 install:
-	chezmoi init --apply --source=$(DOTFILES_DIR)
+	chezmoi init --apply --source=$(YATATE_DIR)
