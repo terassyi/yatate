@@ -1,0 +1,7 @@
+# Minimal .bashrc -- managed by chezmoi
+# Primary shell is fish; this exists for bash fallback sessions.
+
+# Tool paths managed by tomei
+if command -v tomei &>/dev/null; then
+    eval "$(tomei env --shell bash)"
+fi

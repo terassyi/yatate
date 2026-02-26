@@ -66,6 +66,9 @@ for i in "${!tool_names[@]}"; do
 done
 
 # --- Check runtimes ---
+# Source runtime paths from tomei env
+eval "$(tomei env --shell bash "$TOMEI_DIR")"
+
 mapfile -t runtime_names < <(echo "$plan_json" | jq -r '.resources[] | select(.kind == "Runtime") | .name')
 
 if [ ${#runtime_names[@]} -gt 0 ]; then
@@ -85,6 +88,14 @@ if [ ${#runtime_names[@]} -gt 0 ]; then
                     echo "  OK: rustc $(rustc --version)"
                 else
                     echo "  FAIL: rustc not found"
+                    FAIL=$((FAIL + 1))
+                fi
+                ;;
+            pnpm)
+                if command -v pnpm &>/dev/null; then
+                    echo "  OK: pnpm $(pnpm --version)"
+                else
+                    echo "  FAIL: pnpm not found"
                     FAIL=$((FAIL + 1))
                 fi
                 ;;

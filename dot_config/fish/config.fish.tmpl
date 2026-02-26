@@ -13,13 +13,14 @@ set -gx SKIM_DEFAULT_COMMAND 'rg --files --hidden --follow --glob "!.git/*"'
 set -gx SKIM_DEFAULT_OPTIONS "--color=fg:#e6e6fa,fg+:#333333,bg+:#dda0dd,pointer:#ff0000,hl:#dda0dd,hl+:#dda0dd --height=30% --layout=reverse"
 
 # ── PATH ───────────────────────────────────────────────
+fish_add_path $HOME/.local/bin
 {{ if .is_darwin -}}
 fish_add_path /opt/homebrew/bin
 {{ end -}}
 
 # Tool paths managed by tomei
 if command -q tomei
-    eval (tomei env --shell fish)
+    tomei env --shell fish | source
 end
 
 if test -d /nix
