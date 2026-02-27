@@ -109,6 +109,14 @@ if [ ${#runtime_names[@]} -gt 0 ]; then
                     FAIL=$((FAIL + 1))
                 fi
                 ;;
+            uv)
+                if command -v uv &>/dev/null; then
+                    echo "  OK: uv $(uv --version)"
+                else
+                    echo "  FAIL: uv not found"
+                    FAIL=$((FAIL + 1))
+                fi
+                ;;
             *)
                 echo "  WARN: unknown runtime '$rt', skipping"
                 WARN=$((WARN + 1))

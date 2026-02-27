@@ -4,6 +4,7 @@ import (
 	gopreset "tomei.terassyi.net/presets/go"
 	"tomei.terassyi.net/presets/rust"
 	"tomei.terassyi.net/presets/node"
+	"tomei.terassyi.net/presets/python"
 )
 
 goRuntime: gopreset.#GoRuntime & {
@@ -17,6 +18,10 @@ rustRuntime: rust.#RustRuntime & {
 
 pnpmRuntime: node.#PnpmRuntime & {
 	spec: version: "10.29.3"
+}
+
+uvRuntime: python.#UvRuntime & {
+	spec: version: "0.10.6"
 }
 
 luaRuntime: {
