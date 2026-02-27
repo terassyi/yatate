@@ -60,4 +60,13 @@ else
     echo "fish already installed: $(fish --version)"
 fi
 
+{{ if eq .hostname "darwin2" -}}
+if ! command -v ttyd &>/dev/null; then
+    echo "Installing ttyd via Homebrew..."
+    brew install ttyd
+else
+    echo "ttyd already installed"
+fi
+{{ end -}}
+
 {{ end -}}

@@ -375,11 +375,11 @@ home-manager 廃止に伴い、neovim プラグインを nixpkgs.vimPlugins か�
 
 - [x] `dot_config/tomei/cue.mod/module.cue`
 - [x] `dot_config/tomei/tomei_platform.cue`
-- [ ] `dot_config/tomei/runtimes.cue` (Go, Rust, pnpm)
+- [x] `dot_config/tomei/runtimes.cue` (Go, Rust, pnpm)
 - [x] `dot_config/tomei/common-tools.cue` (aqua ToolSet)
-- [ ] `dot_config/tomei/lang-tools.cue` (gopls, stylua)
-- [ ] `dot_config/tomei/darwin-tools.cue`
-- [ ] `dot_config/tomei/darwin2-extras.cue.tmpl`
+- [x] `dot_config/tomei/lang-tools.cue` (gopls, stylua)
+- [x] `dot_config/tomei/darwin-tools.cue`
+- [x] `dot_config/tomei/darwin2-extras.cue.tmpl`
 
 ### Phase 8: nix 縮小
 

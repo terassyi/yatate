@@ -1,0 +1,18 @@
+package tomei
+{{ if eq .hostname "darwin2" }}
+import (
+	"tomei.terassyi.net/presets/aqua"
+	"tomei.terassyi.net/presets/python"
+)
+
+darwin2Tools: aqua.#AquaToolSet & {
+	metadata: name: "darwin2-tools"
+	spec: tools: {
+		ffmpeg: {package: "Tyrrrz/FFmpegBin", version: "8.0.1"}
+	}
+}
+
+uvRuntime: python.#UvRuntime & {
+	spec: version: "0.10.6"
+}
+{{ end -}}

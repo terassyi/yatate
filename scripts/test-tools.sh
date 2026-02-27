@@ -31,6 +31,11 @@ fi
 
 plan_json=$(tomei plan -o json "$TOMEI_DIR")
 
+# Source .bashrc to pick up PATH (tomei env, cargo, pnpm, etc.)
+set +eu
+source "$HOME/.bashrc"
+set -eu
+
 # Extract Tool resources: name and version
 mapfile -t tool_names < <(echo "$plan_json" | jq -r '.resources[] | select(.kind == "Tool") | .name')
 mapfile -t tool_versions < <(echo "$plan_json" | jq -r '.resources[] | select(.kind == "Tool") | .version')
@@ -66,9 +71,6 @@ for i in "${!tool_names[@]}"; do
 done
 
 # --- Check runtimes ---
-# Source runtime paths from tomei env
-eval "$(tomei env --shell bash "$TOMEI_DIR")"
-
 mapfile -t runtime_names < <(echo "$plan_json" | jq -r '.resources[] | select(.kind == "Runtime") | .name')
 
 if [ ${#runtime_names[@]} -gt 0 ]; then
@@ -96,6 +98,14 @@ if [ ${#runtime_names[@]} -gt 0 ]; then
                     echo "  OK: pnpm $(pnpm --version)"
                 else
                     echo "  FAIL: pnpm not found"
+                    FAIL=$((FAIL + 1))
+                fi
+                ;;
+            lua)
+                if command -v lua &>/dev/null; then
+                    echo "  OK: lua $(lua -v 2>&1)"
+                else
+                    echo "  FAIL: lua not found"
                     FAIL=$((FAIL + 1))
                 fi
                 ;;
