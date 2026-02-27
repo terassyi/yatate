@@ -1,11 +1,6 @@
 package tomei
 
-import "tomei.terassyi.net/presets/aqua"
-
-darwinTools: aqua.#AquaToolSet & {
-	metadata: name: "darwin-tools"
-	spec: tools: {
-		gcloud: {package: "twistedpair/google-cloud-sdk", version: "558.0.0"}
-		docker: {package: "docker/cli", version: "v29.2.1"}
-	}
-}
+// darwin-tools: docker と gcloud は tomei のバグで現在インストール不可
+// - docker: tgz アーカイブ形式が未サポート (known-issues.md)
+// - gcloud: アーカイブ内の相対シンボリンク展開失敗 (known-issues.md)
+// tomei 修正後に戻す

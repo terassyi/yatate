@@ -82,8 +82,8 @@ echo "==> Dconf settings check"
 dconf_ini=~/.config/dconf/gnome.ini
 grep -q "color-scheme='prefer-dark'" "$dconf_ini" || { echo "FAIL: dconf - color-scheme"; exit 1; }
 grep -q "dock-position='BOTTOM'" "$dconf_ini" || { echo "FAIL: dconf - dock-position"; exit 1; }
-# テンプレート変数の展開確認 (testuser)
-grep -q '/home/testuser/' "$dconf_ini" || { echo "FAIL: dconf - username template"; exit 1; }
+# テンプレート変数の展開確認 (username がテンプレート展開されているか)
+grep -q "/home/$(whoami)/" "$dconf_ini" || { echo "FAIL: dconf - username template"; exit 1; }
 
 echo "==> Zed settings check"
 grep -q '"vim_mode": true' ~/.config/zed/settings.json || { echo "FAIL: zed settings - vim_mode"; exit 1; }
