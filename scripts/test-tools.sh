@@ -6,13 +6,14 @@ FAIL=0
 WARN=0
 
 # Tool-specific version command overrides (default: --version)
-declare -A VERSION_CMD
-# VERSION_CMD[example]="-V"
-# VERSION_CMD[other]="version"
+# Usage: version_cmd_<toolname>="flag"
+# version_cmd_example="-V"
+# version_cmd_other="version"
 
 get_version_output() {
     local name="$1"
-    local flag="${VERSION_CMD[$name]:---version}"
+    local var="version_cmd_${name}"
+    local flag="${!var:---version}"
     "$name" $flag 2>&1
 }
 
@@ -36,18 +37,24 @@ set +eu
 source "$HOME/.bashrc"
 set -eu
 
-# Extract Tool resources: name and version
-mapfile -t tool_names < <(echo "$plan_json" | jq -r '.resources[] | select(.kind == "Tool") | .name')
-mapfile -t tool_versions < <(echo "$plan_json" | jq -r '.resources[] | select(.kind == "Tool") | .version')
+# Extract Tool resources as tab-separated name\tversion lines
+tool_count=0
+while IFS=$'\t' read -r name version; do
+    eval "tool_name_${tool_count}=\"\$name\""
+    eval "tool_version_${tool_count}=\"\$version\""
+    tool_count=$((tool_count + 1))
+done < <(echo "$plan_json" | jq -r '.resources[] | select(.kind == "Tool") | [.name, .version] | @tsv')
 
-echo "   Found ${#tool_names[@]} tools: ${tool_names[*]}"
+echo "   Found ${tool_count} tools"
 
 # --- Check each tool ---
 echo "==> Checking tool binaries"
 
-for i in "${!tool_names[@]}"; do
-    name="${tool_names[$i]}"
-    version="${tool_versions[$i]}"
+i=0
+while [ "$i" -lt "$tool_count" ]; do
+    eval "name=\$tool_name_${i}"
+    eval "version=\$tool_version_${i}"
+    i=$((i + 1))
 
     if ! command -v "$name" &>/dev/null; then
         echo "FAIL: $name not found in PATH"
@@ -71,11 +78,19 @@ for i in "${!tool_names[@]}"; do
 done
 
 # --- Check runtimes ---
-mapfile -t runtime_names < <(echo "$plan_json" | jq -r '.resources[] | select(.kind == "Runtime") | .name')
+runtime_count=0
+while IFS= read -r rt; do
+    [ -z "$rt" ] && continue
+    eval "runtime_name_${runtime_count}=\"\$rt\""
+    runtime_count=$((runtime_count + 1))
+done < <(echo "$plan_json" | jq -r '.resources[] | select(.kind == "Runtime") | .name')
 
-if [ ${#runtime_names[@]} -gt 0 ]; then
+if [ "$runtime_count" -gt 0 ]; then
     echo "==> Checking runtimes"
-    for rt in "${runtime_names[@]}"; do
+    j=0
+    while [ "$j" -lt "$runtime_count" ]; do
+        eval "rt=\$runtime_name_${j}"
+        j=$((j + 1))
         case "$rt" in
             go)
                 if command -v go &>/dev/null; then
@@ -127,7 +142,7 @@ fi
 
 # --- Summary ---
 echo ""
-echo "==> Tool check summary: ${#tool_names[@]} tools, $FAIL failures, $WARN warnings"
+echo "==> Tool check summary: ${tool_count} tools, $FAIL failures, $WARN warnings"
 
 if [ "$FAIL" -gt 0 ]; then
     echo "FAILED"
