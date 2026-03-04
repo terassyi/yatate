@@ -15,6 +15,9 @@ cliTools: aqua.#AquaToolSet & {
 		yq:     {package: "mikefarah/yq", version: "v4.52.4"}
 		gh:     {package: "cli/cli", version: "v2.87.3"}
 		zoxide: {package: "ajeetdsouza/zoxide", version: "v0.9.9"}
-		gitui:  {package: "gitui-org/gitui", version: "v0.28.0"}
+		gitui:    {package: "gitui-org/gitui", version: "v0.28.0"}
+		sk:       {package: "skim-rs/skim", version: "v3.6.1"}
+		starship: {package: "starship/starship", version: "v1.24.2"}
+		hugo:     {package: "gohugoio/hugo", version: "v0.157.0"}
 	}
 }

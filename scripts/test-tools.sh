@@ -7,12 +7,13 @@ WARN=0
 
 # Tool-specific version command overrides (default: --version)
 # Usage: version_cmd_<toolname>="flag"
-# version_cmd_example="-V"
-# version_cmd_other="version"
+version_cmd_hugo="version"
+version_cmd_gcloud="version"
 
 get_version_output() {
     local name="$1"
-    local var="version_cmd_${name}"
+    local safe_name="${name//-/_}"
+    local var="version_cmd_${safe_name}"
     local flag="${!var:---version}"
     "$name" $flag 2>&1
 }
