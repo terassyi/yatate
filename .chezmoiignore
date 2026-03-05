@@ -5,7 +5,3 @@ Dockerfile
 README.md
 scripts/
 .config/zed/zed-managed-settings.json
-
-{{ if ne .os "darwin" }}
-.config/tomei/darwin-tools.cue
-{{ end }}

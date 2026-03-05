@@ -8,7 +8,6 @@ WARN=0
 # Tool-specific version command overrides (default: --version)
 # Usage: version_cmd_<toolname>="flag"
 version_cmd_hugo="version"
-version_cmd_gcloud="version"
 
 get_version_output() {
     local name="$1"
