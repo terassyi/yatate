@@ -34,19 +34,19 @@ luaRuntime: {
 		bootstrap: {
 			install:
 				"""
-				set -e
-				LUA_PREFIX="${HOME}/.local/share/tomei/runtimes/lua/{{.Version}}"
-				TMPDIR="$(mktemp -d)"
-				curl -fsSL -o "${TMPDIR}/lua-{{.Version}}.tar.gz" "https://www.lua.org/ftp/lua-{{.Version}}.tar.gz"
-				tar zxf "${TMPDIR}/lua-{{.Version}}.tar.gz" -C "${TMPDIR}"
-				make -C "${TMPDIR}/lua-{{.Version}}" all INSTALL_TOP="${LUA_PREFIX}"
-				make -C "${TMPDIR}/lua-{{.Version}}" install INSTALL_TOP="${LUA_PREFIX}"
-				rm -rf "${TMPDIR}"
-				"""
+					set -e
+					LUA_PREFIX="${HOME}/.local/share/tomei/runtimes/lua/{{.Version}}"
+					TMPDIR="$(mktemp -d)"
+					curl -fsSL -o "${TMPDIR}/lua-{{.Version}}.tar.gz" "https://www.lua.org/ftp/lua-{{.Version}}.tar.gz"
+					tar zxf "${TMPDIR}/lua-{{.Version}}.tar.gz" -C "${TMPDIR}"
+					make -C "${TMPDIR}/lua-{{.Version}}" all INSTALL_TOP="${LUA_PREFIX}"
+					make -C "${TMPDIR}/lua-{{.Version}}" install INSTALL_TOP="${LUA_PREFIX}"
+					rm -rf "${TMPDIR}"
+					"""
 			check:  "$HOME/.local/share/tomei/runtimes/lua/\(spec.version)/bin/lua -v"
 			remove: "rm -rf $HOME/.local/share/tomei/runtimes/lua/\(spec.version)"
 		}
-		binaries:    ["lua", "luac"]
+		binaries: ["lua", "luac"]
 		binDir:      "~/.local/share/tomei/runtimes/lua/\(spec.version)/bin"
 		toolBinPath: "~/.local/share/tomei/runtimes/lua/\(spec.version)/bin"
 		env: {
