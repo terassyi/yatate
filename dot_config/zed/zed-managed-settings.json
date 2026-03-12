@@ -1,4 +1,9 @@
 {
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    }
+  },
   "agent_ui_font_size": 13.0,
   "session": {
     "trust_all_worktrees": true
@@ -69,7 +74,8 @@
     },
     "branch_picker": {
       "show_author_name": true
-    }
+    },
+    "diff_style": "unified"
   },
   "inlay_hints": {
     "enabled": true,

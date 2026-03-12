@@ -9,8 +9,10 @@
   {
     "context": "Workspace",
     "bindings": {
+      // "shift shifj: "file_finder::Toggle"
       "ctrl-'": "terminal_panel::ToggleFocus",
-      "ctrl-]": "agent::ToggleFocus",
+      "ctrl-\"": "agent::ToggleFocus",
+      "ctrl-\\": "workspace::ToggleZoom",
     },
   },
   {
@@ -22,7 +24,9 @@
   },
   {
     "context": "Dock",
-    "bindings": {}
+    "bindings": {
+      "space g": "git_panel::ToggleFocus"
+    }
   },
   {
     "context": "ProjectPanel",
@@ -74,7 +78,12 @@
       "space s": "outline::Toggle",
       "space shift-s": "project_symbols::Toggle",
       "space p": "editor::ShowSignatureHelp",
-      "space t": "workspace::ToggleBottomDock"
+      "space t": "workspace::ToggleBottomDock",
+      "space f": "pane::DeploySearch",
+      // --- Git ---
+      "space g": "git_panel::ToggleFocus",
+      "space g d": "git::Diff",
+      "space g b": "editor::ToggleGitBlameInline"
     },
   },
   {
