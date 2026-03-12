@@ -20,6 +20,7 @@ test:
 shell:
 	docker run --rm -it \
 		-v $(YATATE_DIR):/home/testuser/yatate \
+		-e GITHUB_TOKEN=$(shell gh auth token) \
 		$(IMAGE) bash
 
 clean:

@@ -56,13 +56,15 @@ while [ "$i" -lt "$tool_count" ]; do
     eval "version=\$tool_version_${i}"
     i=$((i + 1))
 
-    if ! command -v "$name" &>/dev/null; then
+    if command -v "$name" &>/dev/null; then
+        echo "  OK: $name found at $(command -v "$name")"
+    elif command -v "kubectl-$name" &>/dev/null; then
+        echo "  OK: $name found at $(command -v "kubectl-$name") (kubectl plugin)"
+    else
         echo "FAIL: $name not found in PATH"
         FAIL=$((FAIL + 1))
         continue
     fi
-
-    echo "  OK: $name found at $(command -v "$name")"
 
     # Version check (best-effort)
     if version_output=$(get_version_output "$name"); then
