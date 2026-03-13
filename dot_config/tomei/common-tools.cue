@@ -50,8 +50,6 @@ k8sTools: aqua.#AquaToolSet & {
 		cosign: {package: "sigstore/cosign", version: "v3.0.5"}
 		cilium: {package: "cilium/cilium-cli", version: "v0.19.2"}
 		hubble: {package: "cilium/hubble", version: "v1.18.6"}
-		cfssl: {package: "cloudflare/cfssl/cfssl", version: "v1.6.5"}
-		cfssljson: {package: "cloudflare/cfssl/cfssljson", version: "v1.6.5"}
 	}
 }
 

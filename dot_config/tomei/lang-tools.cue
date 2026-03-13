@@ -17,6 +17,8 @@ goTools: gopreset.#GoToolSet & {
 		"protoc-gen-go-grpc": {package: "google.golang.org/grpc/cmd/protoc-gen-go-grpc", version: "latest"}
 		dlv: {package: "github.com/go-delve/delve/cmd/dlv", version: "latest"}
 		gobgp: {package: "github.com/osrg/gobgp/v4/cmd/gobgp", version: "latest"}
+		cfssl: {package: "github.com/cloudflare/cfssl/cmd/cfssl", version: "latest"}
+		cfssljson: {package: "github.com/cloudflare/cfssl/cmd/cfssljson", version: "latest"}
 	}
 }
 
