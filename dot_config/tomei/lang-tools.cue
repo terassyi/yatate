@@ -43,6 +43,7 @@ nodeTools: node.#PnpmToolSet & {
 	metadata: name: "node-tools"
 	spec: tools: {
 		gemini: {package: "@google/gemini-cli", version: "0.32.1"}
+		gws: {package: "@googleworkspace/cli", version: "0.13.2"}
 	}
 }
 
