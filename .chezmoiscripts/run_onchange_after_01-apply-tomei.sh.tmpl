@@ -26,6 +26,16 @@ tomei validate "$TOMEI_DIR"
 if [ "${SKIP_TOMEI_APPLY:-}" = "true" ]; then
     echo "Skipping tomei apply (SKIP_TOMEI_APPLY=true)"
 else
-    tomei apply --yes "$TOMEI_DIR" || echo "WARN: tomei apply exited with errors (some tools may have failed)"
+    if ! tomei apply --yes "$TOMEI_DIR"; then
+        echo "ERROR: tomei apply failed"
+        echo "==> Failed resources:"
+        tomei logs --no-color
+        # Show detailed logs for each failed resource
+        for res in $(tomei logs --no-color 2>/dev/null | grep -oE '[A-Z][a-z]+/[^ ]+'); do
+            echo "==> Log: $res"
+            tomei logs --no-color "$res" 2>/dev/null || true
+        done
+        exit 1
+    fi
     echo "tomei apply completed"
 fi
