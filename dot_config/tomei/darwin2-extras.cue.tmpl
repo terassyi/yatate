@@ -8,4 +8,16 @@ darwin2Tools: aqua.#AquaToolSet & {
 		ffmpeg: {package: "Tyrrrz/FFmpegBin", version: "8.0.1"}
 	}
 }
+
+// ttyd: web terminal (darwin2 only, via Homebrew)
+ttyd: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: name: "ttyd"
+	spec: {
+		installerRef: "brew"
+		version:      "latest"
+		package:      "ttyd"
+	}
+}
 {{ end -}}

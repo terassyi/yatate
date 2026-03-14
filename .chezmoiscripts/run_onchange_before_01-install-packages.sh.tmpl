@@ -29,44 +29,5 @@ if ! locale -a 2>/dev/null | grep -q "en_US.utf8"; then
 fi
 
 {{ else if .is_darwin -}}
-if ! command -v jq &>/dev/null; then
-    echo "Installing jq via Homebrew..."
-    brew install jq
-else
-    echo "jq already installed: $(jq --version)"
-fi
-
-if ! command -v nvim &>/dev/null; then
-    echo "Installing neovim via Homebrew..."
-    brew install neovim
-else
-    echo "neovim already installed: $(nvim --version | head -1)"
-fi
-
-if ! command -v fish &>/dev/null; then
-    echo "Installing fish shell via official .pkg installer..."
-    CURL_OPTS=(-fsSL)
-    if [ -n "${GITHUB_TOKEN:-}" ]; then
-        CURL_OPTS+=(-H "Authorization: token ${GITHUB_TOKEN}")
-    fi
-    FISH_VERSION="$(curl "${CURL_OPTS[@]}" https://api.github.com/repos/fish-shell/fish-shell/releases/latest | grep '"tag_name"' | sed 's/.*"tag_name": *"\(.*\)".*/\1/')"
-    FISH_PKG_URL="https://github.com/fish-shell/fish-shell/releases/download/${FISH_VERSION}/fish-${FISH_VERSION}.pkg"
-    TMPDIR="$(mktemp -d)"
-    curl -fsSL -o "${TMPDIR}/fish.pkg" "$FISH_PKG_URL"
-    sudo installer -pkg "${TMPDIR}/fish.pkg" -target /
-    rm -rf "$TMPDIR"
-    echo "fish ${FISH_VERSION} installed"
-else
-    echo "fish already installed: $(fish --version)"
-fi
-
-{{ if eq .hostname "darwin2" -}}
-if ! command -v ttyd &>/dev/null; then
-    echo "Installing ttyd via Homebrew..."
-    brew install ttyd
-else
-    echo "ttyd already installed"
-fi
-{{ end -}}
-
+# darwin packages (jq, neovim, fish, ttyd, gcloud) are managed by tomei (brew installer)
 {{ end -}}

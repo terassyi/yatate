@@ -122,6 +122,79 @@ kubectlMft: {
 	}
 }
 
+// homebrew: Homebrew package manager (darwin only)
+homebrew: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: name: "homebrew"
+	spec: {
+		version: "latest"
+		enabled: _os == "darwin"
+		commands: {
+			install: ["NONINTERACTIVE=1 /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""]
+			check: ["brew --version"]
+			remove: ["NONINTERACTIVE=1 /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)\""]
+		}
+	}
+}
+
+// brew: Homebrew delegation Installer (darwin only)
+brewInstaller: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Installer"
+	metadata: name: "brew"
+	spec: {
+		type:    "delegation"
+		toolRef: "homebrew"
+		enabled: _os == "darwin"
+		binDir:  "/opt/homebrew/bin"
+		commands: {
+			install: ["HOMEBREW_NO_AUTO_UPDATE=1 brew install {{.Package}}"]
+			check: ["brew list {{.Package}} >/dev/null 2>&1"]
+			remove: ["brew uninstall {{.Package}}"]
+		}
+	}
+}
+
+// fish: fish shell via Homebrew (darwin only)
+fish: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: name: "fish"
+	spec: {
+		installerRef: "brew"
+		version:      "latest"
+		enabled:      _os == "darwin"
+		package:      "fish"
+	}
+}
+
+// neovim: installed via Homebrew on darwin
+neovim: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: name: "nvim"
+	spec: {
+		installerRef: "brew"
+		version:      "latest"
+		enabled:      _os == "darwin"
+		package:      "neovim"
+	}
+}
+
+// gcloud: Google Cloud CLI via Homebrew (darwin only)
+gcloud: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: name: "gcloud"
+	spec: {
+		installerRef: "brew"
+		version:      "latest"
+		enabled:      _os == "darwin"
+		package:      "google-cloud-sdk"
+	}
+}
+
 // crane: container registry CLI (aqua package includes crane and gcrane)
 crane: {
 	apiVersion: "tomei.terassyi.net/v1beta1"
