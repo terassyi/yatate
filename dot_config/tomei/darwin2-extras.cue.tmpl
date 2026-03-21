@@ -1,6 +1,9 @@
 package tomei
 {{ if eq .hostname "darwin2" }}
-import "tomei.terassyi.net/presets/aqua"
+import (
+	"tomei.terassyi.net/presets/aqua"
+	"tomei.terassyi.net/presets/brew"
+)
 
 darwin2Tools: aqua.#AquaToolSet & {
 	metadata: name: "darwin2-tools"
@@ -9,15 +12,8 @@ darwin2Tools: aqua.#AquaToolSet & {
 	}
 }
 
-// ttyd: web terminal (darwin2 only, via Homebrew)
-ttyd: {
-	apiVersion: "tomei.terassyi.net/v1beta1"
-	kind:       "Tool"
+ttyd: brew.#Formula & {
 	metadata: name: "ttyd"
-	spec: {
-		installerRef: "brew"
-		version:      "latest"
-		package:      "ttyd"
-	}
+	spec: package: "ttyd"
 }
 {{ end -}}
