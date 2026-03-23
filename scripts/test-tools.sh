@@ -9,6 +9,17 @@ WARN=0
 # Usage: version_cmd_<toolname>="flag"
 version_cmd_hugo="version"
 
+# Tool name → binary name mapping (when resource name differs from binary)
+# Using a function instead of associative array for bash 3.x compatibility (macOS)
+get_bin_name() {
+    case "$1" in
+        homebrew)          echo "brew" ;;
+        neovim)            echo "nvim" ;;
+        google-cloud-sdk)  echo "gcloud" ;;
+        *)                 echo "$1" ;;
+    esac
+}
+
 get_version_output() {
     local name="$1"
     local safe_name="${name//-/_}"
@@ -56,8 +67,11 @@ while [ "$i" -lt "$tool_count" ]; do
     eval "version=\$tool_version_${i}"
     i=$((i + 1))
 
-    if command -v "$name" &>/dev/null; then
-        echo "  OK: $name found at $(command -v "$name")"
+    # Resolve binary name (may differ from resource name)
+    bin="$(get_bin_name "$name")"
+
+    if command -v "$bin" &>/dev/null; then
+        echo "  OK: $name found at $(command -v "$bin")"
     elif command -v "kubectl-$name" &>/dev/null; then
         echo "  OK: $name found at $(command -v "kubectl-$name") (kubectl plugin)"
     else
@@ -67,7 +81,7 @@ while [ "$i" -lt "$tool_count" ]; do
     fi
 
     # Version check (best-effort)
-    if version_output=$(get_version_output "$name"); then
+    if version_output=$(get_version_output "$bin"); then
         version_bare="${version#v}"
         if echo "$version_output" | grep -qF "$version_bare"; then
             echo "  OK: $name version matches ($version_bare)"
