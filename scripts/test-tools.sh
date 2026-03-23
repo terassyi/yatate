@@ -10,11 +10,15 @@ WARN=0
 version_cmd_hugo="version"
 
 # Tool name → binary name mapping (when resource name differs from binary)
-declare -A bin_map=(
-    [homebrew]="brew"
-    [neovim]="nvim"
-    [google-cloud-sdk]="gcloud"
-)
+# Using a function instead of associative array for bash 3.x compatibility (macOS)
+get_bin_name() {
+    case "$1" in
+        homebrew)          echo "brew" ;;
+        neovim)            echo "nvim" ;;
+        google-cloud-sdk)  echo "gcloud" ;;
+        *)                 echo "$1" ;;
+    esac
+}
 
 get_version_output() {
     local name="$1"
@@ -64,7 +68,7 @@ while [ "$i" -lt "$tool_count" ]; do
     i=$((i + 1))
 
     # Resolve binary name (may differ from resource name)
-    bin="${bin_map[$name]:-$name}"
+    bin="$(get_bin_name "$name")"
 
     if command -v "$bin" &>/dev/null; then
         echo "  OK: $name found at $(command -v "$bin")"
