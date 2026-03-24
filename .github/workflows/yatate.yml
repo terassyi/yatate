@@ -22,7 +22,7 @@ jobs:
         run: |
           chezmoi init --source=. --no-tty
           chezmoi execute-template --source=. --no-tty < /dev/null > /dev/null
-          chezmoi diff --source=. --no-tty || true
+          chezmoi diff --source=. --no-tty --exclude=encrypted || true
       - name: Validate tomei manifests
         run: tomei validate dot_config/tomei/
       - name: Check fish syntax
@@ -58,21 +58,31 @@ jobs:
       - name: Build test image
         if: matrix.mode == 'container'
         run: docker build -t yatate .
-      - name: Run test in container
+      - name: Run test in container (with encryption)
         if: matrix.mode == 'container'
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/home/testuser/yatate \
             -e GITHUB_TOKEN="${GITHUB_TOKEN}" \
             -e AQUA_GITHUB_TOKEN="${GITHUB_TOKEN}" \
-            yatate bash -c "/home/testuser/yatate/scripts/test.sh && /home/testuser/yatate/scripts/test-tools.sh"
+            -e AGE_TEST_SECRET_KEY="${AGE_TEST_SECRET_KEY}" \
+            yatate bash -c "\
+              /home/testuser/yatate/scripts/setup-test-key.sh && \
+              /home/testuser/yatate/scripts/test.sh && \
+              /home/testuser/yatate/scripts/test-tools.sh"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AGE_TEST_SECRET_KEY: ${{ secrets.AGE_TEST_SECRET_KEY }}
 
       # --- native mode ---
       - name: Install chezmoi (native)
         if: matrix.mode == 'native'
         run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin -t v2.70.0
+      - name: Setup test age key (native)
+        if: matrix.mode == 'native'
+        run: bash scripts/setup-test-key.sh
+        env:
+          AGE_TEST_SECRET_KEY: ${{ secrets.AGE_TEST_SECRET_KEY }}
       - name: Run test (native)
         if: matrix.mode == 'native'
         run: bash scripts/test.sh "${{ github.workspace }}"

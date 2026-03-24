@@ -21,6 +21,7 @@ cliTools: aqua.#AquaToolSet & {
 		hugo: {package: "gohugoio/hugo", version: "v0.157.0"}
 		"golangci-lint": {package: "golangci/golangci-lint", version: "v2.10.1"}
 		task: {package: "go-task/task", version: "v3.48.0"}
+		age: {package: "FiloSottile/age", version: "v1.2.1"}
 	}
 }
 

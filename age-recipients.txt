@@ -1,0 +1,7 @@
+# age public keys for all profiles (used by scripts/encrypt.sh)
+# personal
+age1jlp689wyctgklkajtllwwspmuz9c9mmntd9l279trx2r9vushstqnga25d
+# work
+age1p4kg9mlawasn4dh9ug8xndptnry0yu6ec7nhtwvk0la3qzm3dy4qmh88e8
+# test
+age1j979mw7wxxngsj3t70jl8ndqy0d2vjzv48t7ryy5fk9nr8ztt90s7lmwky

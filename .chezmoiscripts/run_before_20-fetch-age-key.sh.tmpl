@@ -1,0 +1,44 @@
+#!/bin/bash
+set -euo pipefail
+umask 077
+
+PROFILE="{{ .profile }}"
+KEY_FILE="${HOME}/.config/chezmoi/key-${PROFILE}.txt"
+
+# test プロファイルは GCM から取得しない（テスト鍵は別途配置）
+if [ "$PROFILE" = "test" ]; then
+    exit 0
+fi
+
+# 冪等性: 鍵が既に存在すればスキップ
+if [ -f "$KEY_FILE" ]; then
+    exit 0
+fi
+
+# gcloud 未インストール → graceful skip
+if ! command -v gcloud &>/dev/null; then
+    echo "SKIP: gcloud not found. Install gcloud, then re-run chezmoi apply."
+    exit 0
+fi
+
+# gcloud 未認証 → graceful skip
+if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null | grep -q .; then
+    echo "SKIP: gcloud not authenticated. Run 'gcloud auth login', then chezmoi apply."
+    exit 0
+fi
+
+# GCP プロジェクト ID は環境変数から取得（リポジトリに埋め込まない）
+GCP_PROJECT="${CHEZMOI_GCP_PROJECT:-}"
+if [ -z "$GCP_PROJECT" ]; then
+    echo "SKIP: CHEZMOI_GCP_PROJECT not set. Export it in your shell profile, then re-run chezmoi apply."
+    exit 0
+fi
+
+echo "Fetching age key (profile=${PROFILE})..."
+mkdir -p "$(dirname "$KEY_FILE")"
+gcloud secrets versions access latest \
+    --secret="chezmoi-age-key-${PROFILE}" \
+    --project="${GCP_PROJECT}" \
+    > "$KEY_FILE"
+chmod 600 "$KEY_FILE"
+echo "age key saved: $KEY_FILE"

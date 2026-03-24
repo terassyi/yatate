@@ -4,4 +4,9 @@ Makefile
 Dockerfile
 README.md
 scripts/
+testdata/
 .config/zed/zed-managed-settings.json
+
+{{ if ne .profile "test" }}
+.ssh/test_key
+{{ end }}
