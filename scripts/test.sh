@@ -7,9 +7,13 @@ echo "==> chezmoi init"
 chezmoi init --source="$YATATE_SOURCE" --no-tty
 
 KEY_FILE="${HOME}/.config/chezmoi/key-test.txt"
-if [ -f "$KEY_FILE" ]; then
+if [ -s "$KEY_FILE" ]; then
     echo "==> chezmoi apply (with encryption)"
     chezmoi apply --source="$YATATE_SOURCE" --no-tty
+elif [ -f "$KEY_FILE" ]; then
+    echo "WARNING: Encryption key file '$KEY_FILE' exists but is empty; running without encrypted resources."
+    echo "==> chezmoi apply (exclude encrypted)"
+    chezmoi apply --source="$YATATE_SOURCE" --no-tty --exclude=encrypted
 else
     echo "==> chezmoi apply (exclude encrypted)"
     chezmoi apply --source="$YATATE_SOURCE" --no-tty --exclude=encrypted
@@ -77,7 +81,7 @@ echo "==> Zed settings check"
 grep -q '"vim_mode": true' ~/.config/zed/settings.json || { echo "FAIL: zed settings - vim_mode"; exit 1; }
 grep -q '"Tokyo Night"' ~/.config/zed/settings.json || { echo "FAIL: zed settings - theme"; exit 1; }
 
-if [ -f "$KEY_FILE" ]; then
+if [ -s "$KEY_FILE" ]; then
     echo "==> Encryption test"
     test -f ~/.ssh/test_key || { echo "FAIL: decrypted test_key not found"; exit 1; }
     grep -q "test SSH key" ~/.ssh/test_key || { echo "FAIL: test_key content mismatch"; exit 1; }

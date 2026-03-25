@@ -22,7 +22,7 @@ test-encrypt:
 		-v $(YATATE_DIR):/home/testuser/yatate \
 		$(if $(GITHUB_TOKEN),-e GITHUB_TOKEN=$(GITHUB_TOKEN) -e AQUA_GITHUB_TOKEN=$(GITHUB_TOKEN),) \
 		$(IMAGE) bash -c "\
-			/home/testuser/yatate/scripts/setup-test-key.sh && \
+			REQUIRE_KEY=1 /home/testuser/yatate/scripts/setup-test-key.sh && \
 			/home/testuser/yatate/scripts/test.sh && \
 			/home/testuser/yatate/scripts/test-tools.sh"
 

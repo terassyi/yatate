@@ -28,5 +28,9 @@ if [ -f "$KEY_SRC" ]; then
     exit 0
 fi
 
+if [ "${REQUIRE_KEY:-0}" = "1" ]; then
+    echo "ERROR: No test key available (set AGE_TEST_SECRET_KEY or place testdata/age-test-key.txt)" >&2
+    exit 1
+fi
 echo "SKIP: No test key available (set AGE_TEST_SECRET_KEY or place testdata/age-test-key.txt)"
 exit 0
