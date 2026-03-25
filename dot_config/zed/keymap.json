@@ -13,6 +13,7 @@
       "ctrl-'": "terminal_panel::ToggleFocus",
       "ctrl-\"": "agent::ToggleFocus",
       "ctrl-\\": "workspace::ToggleZoom",
+      "ctrl-?": "workspace::NewCenterTerminal",
     },
   },
   {
