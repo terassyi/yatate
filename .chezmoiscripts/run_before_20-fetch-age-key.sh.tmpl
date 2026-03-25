@@ -1,0 +1,50 @@
+#!/bin/bash
+set -euo pipefail
+umask 077
+
+PROFILE="{{ .profile }}"
+KEY_FILE="${HOME}/.config/chezmoi/key-${PROFILE}.txt"
+
+# test プロファイルは Google Secret Manager から取得しない（テスト鍵は別途配置）
+if [ "$PROFILE" = "test" ]; then
+    exit 0
+fi
+
+# 冪等性: 鍵が既に存在し空でなければスキップ
+if [ -s "$KEY_FILE" ]; then
+    exit 0
+fi
+
+# gcloud 未インストール → graceful skip
+if ! command -v gcloud &>/dev/null; then
+    echo "SKIP: gcloud not found. Install gcloud, then re-run chezmoi apply."
+    exit 0
+fi
+
+# gcloud 未認証 → graceful skip
+if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null | grep -q .; then
+    echo "SKIP: gcloud not authenticated. Run 'gcloud auth login', then chezmoi apply."
+    exit 0
+fi
+
+# GCP プロジェクト ID は環境変数から取得（リポジトリに埋め込まない）
+GCP_PROJECT="${CHEZMOI_GCP_PROJECT:-}"
+if [ -z "$GCP_PROJECT" ]; then
+    echo "SKIP: CHEZMOI_GCP_PROJECT not set. Export it in your shell profile, then re-run chezmoi apply."
+    exit 0
+fi
+
+echo "Fetching age key (profile=${PROFILE})..."
+mkdir -p "$(dirname "$KEY_FILE")"
+TMP_KEY_FILE="${KEY_FILE}.tmp.$$"
+if ! gcloud secrets versions access latest \
+    --secret="chezmoi-age-key" \
+    --project="${GCP_PROJECT}" \
+    > "$TMP_KEY_FILE"; then
+    echo "SKIP: failed to fetch age key from Secret Manager. Check the secret, permissions, and network, then re-run chezmoi apply."
+    rm -f "$TMP_KEY_FILE"
+    exit 0
+fi
+chmod 600 "$TMP_KEY_FILE"
+mv "$TMP_KEY_FILE" "$KEY_FILE"
+echo "age key saved: $KEY_FILE"

@@ -1,0 +1,10 @@
+key-*.txt
+key-*.pub
+*.pem
+*.key
+.env
+.env.*
+credentials.json
+service-account*.json
+testdata/age-test-key.txt
+plaintext/
