@@ -62,8 +62,8 @@ chezmoi のビルトイン age サポートを使用するため、外部 `age` 
 
 | プロファイル | ホスト | age 鍵ファイル | GCM シークレット名 |
 |------------|--------|--------------|-------------------|
-| personal | teracarbon, teradev, devvm | `~/.config/chezmoi/key-personal.txt` | `chezmoi-age-key-personal` |
-| work | fukdesk, darwin2 | `~/.config/chezmoi/key-work.txt` | `chezmoi-age-key-work` |
+| personal | teracarbon, teradev, devvm | `~/.config/chezmoi/key-personal.txt` | `chezmoi-age-key` |
+| work | fukdesk, darwin2 | `~/.config/chezmoi/key-work.txt` | `chezmoi-age-key` |
 | test | dev (CI/testuser) | `~/.config/chezmoi/key-test.txt` | なし（GitHub Actions シークレット `AGE_TEST_SECRET_KEY` で管理） |
 
 ### 暗号化ファイルの追加

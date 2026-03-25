@@ -37,7 +37,7 @@ fi
 echo "Fetching age key (profile=${PROFILE})..."
 mkdir -p "$(dirname "$KEY_FILE")"
 gcloud secrets versions access latest \
-    --secret="chezmoi-age-key-${PROFILE}" \
+    --secret="chezmoi-age-key" \
     --project="${GCP_PROJECT}" \
     > "$KEY_FILE"
 chmod 600 "$KEY_FILE"
