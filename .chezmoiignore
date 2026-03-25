@@ -5,6 +5,8 @@ Dockerfile
 README.md
 scripts/
 testdata/
+plaintext/
+age-recipients.txt
 .config/zed/zed-managed-settings.json
 
 {{ if ne .profile "test" }}
