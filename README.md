@@ -17,7 +17,7 @@ yatate/
 ├── .chezmoiignore              # chezmoi 除外パターン（プロファイル別暗号化ファイル制御）
 ├── .chezmoiscripts/            # chezmoi 実行スクリプト
 │   ├── run_once_before_*.sh.tmpl   # 初回セットアップ（ディレクトリ作成、tomei インストール等）
-│   ├── run_before_20-fetch-age-key.sh.tmpl  # age 秘密鍵の GCM 取得
+│   ├── run_before_20-fetch-age-key.sh.tmpl  # age 秘密鍵の Secret Manager 取得
 │   ├── run_onchange_before_*.sh.tmpl        # パッケージインストール
 │   └── run_onchange_after_*.sh.tmpl         # tomei apply 等
 ├── age-recipients.txt          # 全プロファイルの age 公開鍵（encrypt.sh が参照）
@@ -60,7 +60,7 @@ chezmoi のビルトイン age サポートを使用するため、外部 `age` 
 プロファイル専用の暗号化ファイルは、他のプロファイルのホストでは復号できない。
 `.chezmoiignore` のテンプレート条件により、他プロファイルのファイルは source state から除外される。
 
-| プロファイル | ホスト | age 鍵ファイル | GCM シークレット名 |
+| プロファイル | ホスト | age 鍵ファイル | Secret Manager シークレット名 |
 |------------|--------|--------------|-------------------|
 | personal | teracarbon, teradev, devvm | `~/.config/chezmoi/key-personal.txt` | `chezmoi-age-key` |
 | work | fukdesk, darwin2 | `~/.config/chezmoi/key-work.txt` | `chezmoi-age-key` |

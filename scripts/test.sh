@@ -87,7 +87,7 @@ if [ -f "$KEY_FILE" ]; then
     test -f "$git_config" || { echo "FAIL: git config not found"; exit 1; }
     assert_git() {
         local label="$1" pattern="$2"
-        grep -q "$pattern" "$git_config" || { echo "FAIL: git config - $label"; exit 1; }
+        grep -Fq "$pattern" "$git_config" || { echo "FAIL: git config - $label"; exit 1; }
     }
     assert_git "user.email" "email = dev@terassyi.net"
     assert_git "user.signingkey" "signingkey = ~/.ssh/id_ed25519.pub"
