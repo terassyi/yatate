@@ -57,3 +57,8 @@ headless  = {{ $headless }}
 is_darwin = {{ eq $os "darwin" }}
 is_linux  = {{ eq $os "linux" }}
 profile   = "{{ $profile }}"
+{{- if eq $profile "work" }}
+skills_repo = "cybozu-private/terashima-skills"
+{{- else }}
+skills_repo = "terassyi/skills"
+{{- end }}

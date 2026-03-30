@@ -1,0 +1,53 @@
+#!/bin/bash
+set -euo pipefail
+
+# skills-config-hash: {{ .profile }}
+
+GH_REPO_HOME="${HOME}/workspace/github.com"
+
+SKILLS_REPO="{{ .skills_repo }}"
+
+if ! command -v gh &>/dev/null; then
+    echo "SKIP: gh not found"
+    exit 0
+fi
+
+if ! gh auth status &>/dev/null; then
+    echo "SKIP: gh not authenticated"
+    exit 0
+fi
+
+CLONE_DIR="${GH_REPO_HOME}/${SKILLS_REPO}"
+
+if [ -d "${CLONE_DIR}/.git" ]; then
+    echo "Updating skills repo: ${SKILLS_REPO}"
+    git -C "$CLONE_DIR" pull --ff-only || true
+else
+    echo "Cloning skills repo: ${SKILLS_REPO}"
+    mkdir -p "$(dirname "$CLONE_DIR")"
+    gh repo clone "$SKILLS_REPO" "$CLONE_DIR"
+fi
+
+# symlink: ~/.claude/skills -> clone_dir/claude/skills
+if [ -d "${CLONE_DIR}/claude/skills" ]; then
+    mkdir -p "${HOME}/.claude"
+    if [ -d "${HOME}/.claude/skills" ] && [ ! -L "${HOME}/.claude/skills" ]; then
+        echo "WARN: backing up existing ~/.claude/skills"
+        mv "${HOME}/.claude/skills" "${HOME}/.claude/skills.bak.$(date +%s)"
+    fi
+    ln -snf "${CLONE_DIR}/claude/skills" "${HOME}/.claude/skills"
+    echo "Linked: ~/.claude/skills -> ${CLONE_DIR}/claude/skills"
+fi
+
+# symlink: ~/.gemini/AGENTS.md -> clone_dir/gemini/AGENTS.md
+if [ -d "${CLONE_DIR}/gemini" ]; then
+    mkdir -p "${HOME}/.gemini"
+    for f in "${CLONE_DIR}"/gemini/*; do
+        [ -f "$f" ] || continue
+        fname="$(basename "$f")"
+        ln -snf "$f" "${HOME}/.gemini/${fname}"
+        echo "Linked: ~/.gemini/${fname} -> ${f}"
+    done
+fi
+
+echo "Skills setup complete (profile={{ .profile }}, repo=${SKILLS_REPO})"
