@@ -24,6 +24,28 @@ uvRuntime: python.#UvRuntime & {
 	spec: version: "0.10.6"
 }
 
+_zigOSMap: {darwin: "macos", linux: "linux"}
+_zigArchMap: {amd64: "x86_64", arm64: "aarch64"}
+
+zigRuntime: {
+	let _zigOS = _zigOSMap[_os]
+	let _zigArch = _zigArchMap[_arch]
+
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Runtime"
+	metadata: name: "zig"
+	platform: {os: _os, arch: _arch}
+	spec: {
+		type:    "download"
+		version: "0.14.0"
+		source: {
+			url: "https://ziglang.org/download/{{.Version}}/zig-\(_zigOS)-\(_zigArch)-{{.Version}}.tar.xz"
+		}
+		binaries: ["zig"]
+		binDir: "~/.local/share/tomei/runtimes/zig/{{.Version}}"
+	}
+}
+
 luaRuntime: {
 	apiVersion: "tomei.terassyi.net/v1beta1"
 	kind:       "Runtime"

@@ -148,6 +148,14 @@ if [ "$runtime_count" -gt 0 ]; then
                     FAIL=$((FAIL + 1))
                 fi
                 ;;
+            zig)
+                if command -v zig &>/dev/null; then
+                    echo "  OK: zig $(zig version)"
+                else
+                    echo "  FAIL: zig not found"
+                    FAIL=$((FAIL + 1))
+                fi
+                ;;
             *)
                 echo "  WARN: unknown runtime '$rt', skipping"
                 WARN=$((WARN + 1))
