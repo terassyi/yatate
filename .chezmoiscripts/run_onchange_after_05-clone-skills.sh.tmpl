@@ -25,7 +25,10 @@ if [ -d "${CLONE_DIR}/.git" ]; then
 else
     echo "Cloning skills repo: ${SKILLS_REPO}"
     mkdir -p "$(dirname "$CLONE_DIR")"
-    gh repo clone "$SKILLS_REPO" "$CLONE_DIR"
+    if ! gh repo clone "$SKILLS_REPO" "$CLONE_DIR"; then
+        echo "SKIP: failed to clone ${SKILLS_REPO} (no access?)"
+        exit 0
+    fi
 fi
 
 # symlink: ~/.claude/skills -> clone_dir/claude/skills
