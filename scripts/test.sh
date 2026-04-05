@@ -108,4 +108,22 @@ if [ -s "$KEY_FILE" ]; then
     echo "Encryption tests passed"
 fi
 
+echo "==> Personal SSH key ignore check (test profile should not have personal keys)"
+test ! -f ~/.ssh/id_ed25519 || { echo "FAIL: id_ed25519 should not exist in test profile"; exit 1; }
+test ! -f ~/.ssh/id_ed25519.pub || { echo "FAIL: id_ed25519.pub should not exist in test profile"; exit 1; }
+
+echo "==> Personal SSH key source check"
+encrypted_private_key="$YATATE_SOURCE/dot_ssh/encrypted_id_ed25519.age"
+test -f "$encrypted_private_key" || { echo "FAIL: encrypted SSH private key not found in source"; exit 1; }
+test -f "$YATATE_SOURCE/dot_ssh/id_ed25519.pub" || { echo "FAIL: SSH public key not found in source"; exit 1; }
+head -1 "$encrypted_private_key" | grep -q "BEGIN AGE ENCRYPTED FILE" || { echo "FAIL: invalid age header"; exit 1; }
+
+echo "==> Personal SSH key recipient check"
+if [ -s "$KEY_FILE" ]; then
+    if age --decrypt --identity "$KEY_FILE" "$encrypted_private_key" >/dev/null 2>&1; then
+        echo "FAIL: encrypted SSH private key is decryptable with test identity"
+        exit 1
+    fi
+fi
+
 echo "All checks passed"
