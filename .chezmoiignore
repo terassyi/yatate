@@ -12,3 +12,8 @@ age-recipients.txt
 {{ if ne .profile "test" }}
 .ssh/test_key
 {{ end }}
+
+{{ if ne .profile "personal" }}
+.ssh/id_ed25519
+.ssh/id_ed25519.pub
+{{ end }}

@@ -105,7 +105,16 @@ if [ -s "$KEY_FILE" ]; then
     echo "==> SSH config check (encrypted)"
     test -f ~/.ssh/config || { echo "FAIL: SSH config not found"; exit 1; }
 
+    echo "==> Personal SSH key ignore check (test profile should not have personal keys)"
+    test ! -f ~/.ssh/id_ed25519 || { echo "FAIL: id_ed25519 should not exist in test profile"; exit 1; }
+    test ! -f ~/.ssh/id_ed25519.pub || { echo "FAIL: id_ed25519.pub should not exist in test profile"; exit 1; }
+
     echo "Encryption tests passed"
 fi
+
+echo "==> Personal SSH key source check"
+test -f "$YATATE_SOURCE/dot_ssh/encrypted_private_id_ed25519.age" || { echo "FAIL: encrypted SSH private key not found in source"; exit 1; }
+test -f "$YATATE_SOURCE/dot_ssh/id_ed25519.pub" || { echo "FAIL: SSH public key not found in source"; exit 1; }
+head -1 "$YATATE_SOURCE/dot_ssh/encrypted_private_id_ed25519.age" | grep -q "BEGIN AGE ENCRYPTED FILE" || { echo "FAIL: invalid age header"; exit 1; }
 
 echo "All checks passed"
