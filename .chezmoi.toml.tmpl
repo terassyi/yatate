@@ -1,5 +1,8 @@
 {{- /* ホスト情報の取得 */ -}}
 {{- $hostname := .chezmoi.hostname -}}
+{{- if env "DOTFILES_HOSTNAME" -}}
+  {{- $hostname = env "DOTFILES_HOSTNAME" -}}
+{{- end -}}
 {{- $os := .chezmoi.os -}}
 {{- $username := .chezmoi.username -}}
 
