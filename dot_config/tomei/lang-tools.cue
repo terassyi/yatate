@@ -1,6 +1,7 @@
 package tomei
 
 import (
+	"tomei.terassyi.net/schema"
 	"tomei.terassyi.net/presets/aqua"
 	gopreset "tomei.terassyi.net/presets/go"
 	"tomei.terassyi.net/presets/node"
@@ -36,6 +37,33 @@ rustTools: rust.#BinstallToolSet & {
 		"cargo-expand": {package: "cargo-expand"}
 		"cargo-generate": {package: "cargo-generate"}
 		jj: {package: "jj-cli"}
+	}
+}
+
+rustupComponentInstaller: schema.#Installer & {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Installer"
+	metadata: name: "rustup-component"
+	spec: {
+		type:       "delegation"
+		runtimeRef: "rust"
+		commands: {
+			install: ["~/.cargo/bin/rustup component add {{.Package}}"]
+			remove: ["~/.cargo/bin/rustup component remove {{.Package}}"]
+		}
+	}
+}
+
+rustupComponents: schema.#ToolSet & {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "ToolSet"
+	metadata: name: "rustup-components"
+	spec: {
+		installerRef: "rustup-component"
+		tools: {
+			"rust-analyzer": {package: "rust-analyzer"}
+			"rust-src": {package: "rust-src"}
+		}
 	}
 }
 
