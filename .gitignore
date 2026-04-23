@@ -8,3 +8,5 @@ credentials.json
 service-account*.json
 testdata/age-test-key.txt
 plaintext/
+
+.claude/scheduled_tasks.lock

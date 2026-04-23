@@ -48,13 +48,17 @@ set +eu
 source "$HOME/.bashrc"
 set -eu
 
-# Extract Tool resources as tab-separated name\tversion lines
+# Extract Tool resources as name|version|deps lines.
+# Use '|' as the field separator (not tab) because IFS of whitespace chars
+# collapses empty middle fields, which would misalign columns when .version is empty.
+# deps is a comma-separated list of dependency NodeIDs (e.g. "Installer/rustup-component,Runtime/rust").
 tool_count=0
-while IFS=$'\t' read -r name version; do
+while IFS='|' read -r name version deps; do
     eval "tool_name_${tool_count}=\"\$name\""
     eval "tool_version_${tool_count}=\"\$version\""
+    eval "tool_deps_${tool_count}=\"\$deps\""
     tool_count=$((tool_count + 1))
-done < <(echo "$plan_json" | jq -r '.resources[] | select(.kind == "Tool") | [.name, .version] | @tsv')
+done < <(echo "$plan_json" | jq -r '.resources[] | select(.kind == "Tool") | "\(.name)|\(.version // "")|\((.dependencies // []) | join(","))"')
 
 echo "   Found ${tool_count} tools"
 
@@ -65,7 +69,21 @@ i=0
 while [ "$i" -lt "$tool_count" ]; do
     eval "name=\$tool_name_${i}"
     eval "version=\$tool_version_${i}"
+    eval "deps=\$tool_deps_${i}"
     i=$((i + 1))
+
+    # Rustup components may or may not produce a PATH-accessible binary
+    # (e.g. rust-src installs only sources). Verify via `rustup component list --installed`.
+    # Component names may include a platform suffix (e.g. "rust-analyzer-x86_64-unknown-linux-gnu").
+    if echo ",$deps," | grep -q ",Installer/rustup-component,"; then
+        if "$HOME/.cargo/bin/rustup" component list --installed 2>/dev/null | grep -qE "^${name}(-|\$)"; then
+            echo "  OK: $name installed via rustup component"
+        else
+            echo "FAIL: $name not found in rustup component list --installed"
+            FAIL=$((FAIL + 1))
+        fi
+        continue
+    fi
 
     # Resolve binary name (may differ from resource name)
     bin="$(get_bin_name "$name")"
