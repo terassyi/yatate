@@ -27,7 +27,14 @@ tomei validate "$TOMEI_DIR"
 
 {{ if .is_darwin -}}
 # darwin: Homebrew は privileged リソース。sudo は tomei が必要な時だけ内部プロンプト。
-TOMEI_APPLY_FLAGS="--system"
+# CI (GitHub Actions 等) は brew が pre-install 済みで、tomei の #Homebrew が
+# sudo で wrap されると brew install スクリプトが root 実行を reject するため
+# --system を付けない（privileged リソースはスキップされる）。
+if [ -n "${CI:-}" ]; then
+    TOMEI_APPLY_FLAGS=""
+else
+    TOMEI_APPLY_FLAGS="--system"
+fi
 {{ else -}}
 TOMEI_APPLY_FLAGS=""
 {{ end -}}
