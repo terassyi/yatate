@@ -52,6 +52,11 @@ nix flake update
 # justfile のレシピ（nix/ ディレクトリ）
 just docker    # Docker イメージビルド
 just run       # 開発コンテナ起動
+
+# tomei: 手動デバッグ時のみ。通常の bootstrap (`make install` / `make install-full`)
+# では chezmoi スクリプトが darwin で自動的に --system を付けるため不要
+tomei plan --system .
+tomei apply --system .
 ```
 
 ## CI/CD

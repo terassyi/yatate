@@ -6,6 +6,8 @@ set -euo pipefail
 # {{ include "dot_config/tomei/tomei_platform.cue" | sha256sum }}
 # {{ include "dot_config/tomei/runtimes.cue" | sha256sum }}
 # {{ include "dot_config/tomei/lang-tools.cue" | sha256sum }}
+# {{ include "dot_config/tomei/darwin-brew.cue" | sha256sum }}
+# {{ include "dot_config/tomei/linux-tools.cue" | sha256sum }}
 # {{ include "dot_config/tomei/darwin2-extras.cue.tmpl" | sha256sum }}
 
 TOMEI_DIR="${HOME}/.config/tomei"
@@ -23,10 +25,17 @@ fi
 tomei init --yes
 tomei validate "$TOMEI_DIR"
 
+{{ if .is_darwin -}}
+# darwin: Homebrew は privileged リソース。sudo は tomei が必要な時だけ内部プロンプト。
+TOMEI_APPLY_FLAGS="--system"
+{{ else -}}
+TOMEI_APPLY_FLAGS=""
+{{ end -}}
+
 if [ "${SKIP_TOMEI_APPLY:-}" = "true" ]; then
     echo "Skipping tomei apply (SKIP_TOMEI_APPLY=true)"
 else
-    if ! tomei apply --yes "$TOMEI_DIR"; then
+    if ! tomei apply --yes ${TOMEI_APPLY_FLAGS} "$TOMEI_DIR"; then
         echo "ERROR: tomei apply failed"
         echo "==> Failed resources:"
         tomei logs --no-color

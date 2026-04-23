@@ -121,6 +121,9 @@ make install
 暗号化ファイルはスキップされるため age 鍵は不要。
 git config や SSH config など暗号化テンプレートは Phase 2 で展開される。
 
+darwin では chezmoi スクリプトが `tomei apply --system` を呼び、Homebrew など
+privileged リソースを扱うため sudo が内部でプロンプトされる（必要時のみ）。
+
 ### Phase 2: age 鍵取得＋暗号化ファイル展開
 
 ```sh
