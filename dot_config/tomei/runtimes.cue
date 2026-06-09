@@ -9,7 +9,7 @@ import (
 
 goRuntime: gopreset.#GoRuntime & {
 	platform: {os: _os, arch: _arch}
-	spec: version: "1.26.0"
+	spec: version: "1.26.4"
 }
 
 rustRuntime: rust.#RustRuntime & {
@@ -17,11 +17,11 @@ rustRuntime: rust.#RustRuntime & {
 }
 
 pnpmRuntime: node.#PnpmRuntime & {
-	spec: version: "10.29.3"
+	spec: version: "10.34.1"
 }
 
 uvRuntime: python.#UvRuntime & {
-	spec: version: "0.10.6"
+	spec: version: "0.11.19"
 }
 
 _zigOSMap: {darwin: "macos", linux: "linux"}
@@ -37,9 +37,10 @@ zigRuntime: {
 	platform: {os: _os, arch: _arch}
 	spec: {
 		type:    "download"
-		version: "0.14.0"
+		version: "0.16.0"
 		source: {
-			url: "https://ziglang.org/download/{{.Version}}/zig-\(_zigOS)-\(_zigArch)-{{.Version}}.tar.xz"
+			// Zig 0.15+ renamed tarballs to arch-first (zig-<arch>-<os>-<ver>.tar.xz).
+			url: "https://ziglang.org/download/{{.Version}}/zig-\(_zigArch)-\(_zigOS)-{{.Version}}.tar.xz"
 		}
 		binaries: ["zig"]
 		binDir: "~/.local/share/tomei/runtimes/zig/{{.Version}}"

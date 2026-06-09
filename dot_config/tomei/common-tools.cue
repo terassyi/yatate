@@ -2,26 +2,42 @@ package tomei
 
 import "tomei.terassyi.net/presets/aqua"
 
+// Override the builtin "aqua" installer to enable the minimumReleaseAge
+// supply-chain gate: refuse to install any aqua-fetched tool whose upstream
+// release is younger than 1 week, giving the community time to flag a
+// compromised release. Applies to every aqua-installed tool (cliTools,
+// k8sTools, crane, pwru, ffmpeg, ...). The override MUST keep type: "download".
+aquaInstaller: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Installer"
+	metadata: name: "aqua"
+	spec: {
+		type:              "download"
+		minimumReleaseAge: "168h"
+	}
+}
+
 cliTools: aqua.#AquaToolSet & {
 	metadata: name: "cli-tools"
 	spec: tools: {
 		rg: {package: "BurntSushi/ripgrep", version: "15.1.0"}
-		fd: {package: "sharkdp/fd", version: "v10.3.0"}
+		fd: {package: "sharkdp/fd", version: "v10.4.2"}
 		jq: {package: "jqlang/jq", version: "1.8.1"}
 		bat: {package: "sharkdp/bat", version: "v0.26.1"}
-		delta: {package: "dandavison/delta", version: "0.18.2"}
-		zellij: {package: "zellij-org/zellij", version: "v0.43.1"}
-		just: {package: "casey/just", version: "1.46.0"}
-		yq: {package: "mikefarah/yq", version: "v4.52.4"}
-		gh: {package: "cli/cli", version: "v2.87.3"}
+		delta: {package: "dandavison/delta", version: "0.19.2"}
+		zellij: {package: "zellij-org/zellij", version: "v0.44.3"}
+		just: {package: "casey/just", version: "1.51.0"}
+		yq: {package: "mikefarah/yq", version: "v4.53.2"}
+		gh: {package: "cli/cli", version: "v2.93.0"}
 		zoxide: {package: "ajeetdsouza/zoxide", version: "v0.9.9"}
-		gitui: {package: "gitui-org/gitui", version: "v0.28.0"}
-		sk: {package: "skim-rs/skim", version: "v3.6.1"}
-		starship: {package: "starship/starship", version: "v1.24.2"}
-		hugo: {package: "gohugoio/hugo", version: "v0.157.0"}
-		"golangci-lint": {package: "golangci/golangci-lint", version: "v2.10.1"}
-		task: {package: "go-task/task", version: "v3.48.0"}
-		age: {package: "FiloSottile/age", version: "v1.2.1"}
+		gitui: {package: "gitui-org/gitui", version: "v0.28.1"}
+		sk: {package: "skim-rs/skim", version: "v4.7.0"}
+		starship: {package: "starship/starship", version: "v1.25.1"}
+		hugo: {package: "gohugoio/hugo", version: "v0.162.1"}
+		"golangci-lint": {package: "golangci/golangci-lint", version: "v2.12.2"}
+		task: {package: "go-task/task", version: "v3.51.1"}
+		age: {package: "FiloSottile/age", version: "v1.3.1"}
+		cloudflared: {package: "cloudflare/cloudflared", version: "2026.5.2"}
 	}
 }
 
@@ -40,17 +56,37 @@ claudeCode: {
 	}
 }
 
+// Google Antigravity CLI (binary: agy), installed via the official curl
+// script into ~/.local/bin. It self-updates in the background, so there is
+// no update command. Replaces the former @google/gemini-cli (pnpm) tool.
+antigravityCli: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "agy"
+		description: "Google Antigravity CLI"
+	}
+	spec: {
+		version: "latest"
+		commands: {
+			install: ["curl -fsSL https://antigravity.google/cli/install.sh | bash"]
+			check: ["command -v agy"]
+			remove: ["rm -f ~/.local/bin/agy"]
+		}
+	}
+}
+
 k8sTools: aqua.#AquaToolSet & {
 	metadata: name: "k8s-tools"
 	spec: tools: {
-		kubectl: {package: "kubernetes/kubernetes/kubectl", version: "v1.35.2"}
-		helm: {package: "helm/helm", version: "v4.1.1"}
+		kubectl: {package: "kubernetes/kubernetes/kubectl", version: "v1.36.1"}
+		helm: {package: "helm/helm", version: "v4.2.0"}
 		kind: {package: "kubernetes-sigs/kind", version: "v0.31.0"}
 		kustomize: {package: "kubernetes-sigs/kustomize", version: "v5.8.1"}
-		stern: {package: "stern/stern", version: "v1.33.1"}
-		cosign: {package: "sigstore/cosign", version: "v3.0.5"}
-		cilium: {package: "cilium/cilium-cli", version: "v0.19.2"}
-		hubble: {package: "cilium/hubble", version: "v1.18.6"}
+		stern: {package: "stern/stern", version: "v1.34.0"}
+		cosign: {package: "sigstore/cosign", version: "v3.0.6"}
+		cilium: {package: "cilium/cilium-cli", version: "v0.19.4"}
+		hubble: {package: "cilium/hubble", version: "v1.19.3"}
 	}
 }
 
@@ -61,7 +97,7 @@ krew: {
 	metadata: name: "krew"
 	spec: {
 		installerRef: "aqua"
-		version:      "v0.4.4"
+		version:      "v0.5.0"
 		package: {
 			owner: "kubernetes-sigs"
 			repo:  "krew"
@@ -130,7 +166,7 @@ crane: {
 	metadata: name: "crane"
 	spec: {
 		installerRef: "aqua"
-		version:      "v0.21.2"
+		version:      "v0.21.6"
 		package:      "google/go-containerregistry"
 		binaryName:   "crane"
 	}

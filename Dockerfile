@@ -2,6 +2,10 @@ FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Tokyo
+# Mark this as an automated test environment. The tomei apply chezmoi script
+# keys off CI to skip privileged resources (`--system`): in this container we
+# only validate user-mode tool installs, not host-global apt SystemPackages.
+ENV CI=true
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential ca-certificates curl file git sudo unzip xz-utils \
