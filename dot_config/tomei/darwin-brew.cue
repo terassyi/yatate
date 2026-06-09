@@ -1,4 +1,4 @@
-@if(darwin)
+@if(darwin && arm64)
 
 package tomei
 
@@ -14,5 +14,6 @@ brewTools: brew.#FormulaSet & {
 		fish: {package: "fish"}
 		neovim: {package: "neovim"}
 		"google-cloud-sdk": {package: "google-cloud-sdk"}
+		ffmpeg: {package: "ffmpeg"}
 	}
 }

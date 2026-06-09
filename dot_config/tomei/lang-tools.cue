@@ -3,23 +3,40 @@ package tomei
 import (
 	"tomei.terassyi.net/schema"
 	"tomei.terassyi.net/presets/aqua"
-	gopreset "tomei.terassyi.net/presets/go"
 	"tomei.terassyi.net/presets/node"
 	"tomei.terassyi.net/presets/rust"
 )
 
-goTools: gopreset.#GoToolSet & {
+// go tools pinned to git commit SHAs (runtimeRef: "go" verifies the SHA via
+// GOSUMDB). The #GoToolSet preset mandates a non-empty version, which is
+// mutually exclusive with sha, so this uses the raw schema.#ToolSet. SHAs are
+// the commits the listed release tags point to (resolved via the Go module
+// proxy). Bump by re-resolving `go list`/`go mod download -json @<tag>`.
+goTools: schema.#ToolSet & {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "ToolSet"
 	metadata: name: "go-tools"
-	spec: tools: {
-		gopls: {package: "golang.org/x/tools/gopls", version: "latest"}
-		goimports: {package: "golang.org/x/tools/cmd/goimports", version: "latest"}
-		cue: {package: "cuelang.org/go/cmd/cue", version: "latest"}
-		"protoc-gen-go": {package: "google.golang.org/protobuf/cmd/protoc-gen-go", version: "latest"}
-		"protoc-gen-go-grpc": {package: "google.golang.org/grpc/cmd/protoc-gen-go-grpc", version: "latest"}
-		dlv: {package: "github.com/go-delve/delve/cmd/dlv", version: "latest"}
-		gobgp: {package: "github.com/osrg/gobgp/v4/cmd/gobgp", version: "latest"}
-		cfssl: {package: "github.com/cloudflare/cfssl/cmd/cfssl", version: "latest"}
-		cfssljson: {package: "github.com/cloudflare/cfssl/cmd/cfssljson", version: "latest"}
+	spec: {
+		runtimeRef: "go"
+		tools: {
+			// gopls v0.22.0
+			gopls: {package: "golang.org/x/tools/gopls", sha: "235f6b391a9df7be9bfce1c34bc29404412be72c"}
+			// golang.org/x/tools v0.45.0
+			goimports: {package: "golang.org/x/tools/cmd/goimports", sha: "2aabba0e4be44cc8f254ced118a7156d04bbc9f3"}
+			// cue v0.16.1
+			cue: {package: "cuelang.org/go/cmd/cue", sha: "6d609d768f1686f9a3a2a20197cacdbb70e5c79d"}
+			// protobuf v1.36.11
+			"protoc-gen-go": {package: "google.golang.org/protobuf/cmd/protoc-gen-go", sha: "96a179180f0ad6bba9b1e7b6e38d0affb0168e9a"}
+			// protoc-gen-go-grpc v1.6.2
+			"protoc-gen-go-grpc": {package: "google.golang.org/grpc/cmd/protoc-gen-go-grpc", sha: "1c63fa5f5492fb6cb4cabf9847999ce469505f49"}
+			// delve v1.26.3
+			dlv: {package: "github.com/go-delve/delve/cmd/dlv", sha: "b17676cac1c1b8588ebdc906ea890e8f075cd948"}
+			// gobgp v4.6.0
+			gobgp: {package: "github.com/osrg/gobgp/v4/cmd/gobgp", sha: "51511000d5b566e9c6d20c7b90e6d9cd23140c51"}
+			// cfssl v1.6.5
+			cfssl: {package: "github.com/cloudflare/cfssl/cmd/cfssl", sha: "96259aa29c9cc9b2f4e04bad7d4bc152e5405dda"}
+			cfssljson: {package: "github.com/cloudflare/cfssl/cmd/cfssljson", sha: "96259aa29c9cc9b2f4e04bad7d4bc152e5405dda"}
+		}
 	}
 }
 
@@ -29,7 +46,7 @@ binstallInstaller: rust.#BinstallInstaller
 rustTools: rust.#BinstallToolSet & {
 	metadata: name: "rust-tools"
 	spec: tools: {
-		stylua: {package: "stylua", version: "2.3.1"}
+		stylua: {package: "stylua", version: "2.5.2"}
 		eza: {package: "eza"}
 		btm: {package: "bottom"}
 		tokei: {package: "tokei"}
@@ -40,45 +57,27 @@ rustTools: rust.#BinstallToolSet & {
 	}
 }
 
-rustupComponentInstaller: schema.#Installer & {
-	apiVersion: "tomei.terassyi.net/v1beta1"
-	kind:       "Installer"
-	metadata: name: "rustup-component"
-	spec: {
-		type:       "delegation"
-		runtimeRef: "rust"
-		commands: {
-			install: ["~/.cargo/bin/rustup component add {{.Package}}"]
-			remove: ["~/.cargo/bin/rustup component remove {{.Package}}"]
-		}
-	}
-}
+rustupComponentInstaller: rust.#RustupComponentInstaller
 
-rustupComponents: schema.#ToolSet & {
-	apiVersion: "tomei.terassyi.net/v1beta1"
-	kind:       "ToolSet"
+rustupComponents: rust.#RustupComponentToolSet & {
 	metadata: name: "rustup-components"
-	spec: {
-		installerRef: "rustup-component"
-		tools: {
-			"rust-analyzer": {package: "rust-analyzer"}
-			"rust-src": {package: "rust-src"}
-		}
+	spec: tools: {
+		"rust-analyzer": {}
+		"rust-src": {}
 	}
 }
 
 nodeTools: node.#PnpmToolSet & {
 	metadata: name: "node-tools"
 	spec: tools: {
-		gemini: {package: "@google/gemini-cli", version: "0.32.1"}
-		gws: {package: "@googleworkspace/cli", version: "0.13.2"}
+		gws: {package: "@googleworkspace/cli", version: "0.22.5"}
 	}
 }
 
 protoTools: aqua.#AquaToolSet & {
 	metadata: name: "proto-tools"
 	spec: tools: {
-		protoc: {package: "protocolbuffers/protobuf/protoc", version: "v34.0"}
+		protoc: {package: "protocolbuffers/protobuf/protoc", version: "v35.0"}
 		grpcurl: {package: "fullstorydev/grpcurl", version: "v1.9.3"}
 	}
 }
