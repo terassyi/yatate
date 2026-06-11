@@ -39,13 +39,14 @@ apt: {
 // purpose. Generic build tooling is kept separate from the per-language sets.
 
 // common-build: general build toolchain shared across languages.
+// mold is a fast linker (ELF/Linux only) usable by gcc/clang for C/C++/Rust.
 commonBuild: {
 	apiVersion: "tomei.terassyi.net/v1beta1"
 	kind:       "SystemPackageSet"
 	metadata: name: "common-build"
 	spec: {
 		installerRef: "apt"
-		packages: ["build-essential", "pkg-config", "cmake"]
+		packages: ["build-essential", "pkg-config", "cmake", "mold"]
 	}
 }
 
