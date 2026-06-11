@@ -26,16 +26,25 @@ require("lazy").setup({
   { "sindrets/diffview.nvim" },
   {
     "nvim-treesitter/nvim-treesitter",
+    -- The repository is archived; `main` is its final, frozen API.
+    -- Highlighting and indentation are provided by Neovim core (wired below).
+    branch = "main",
+    lazy = false,
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter.configs").setup({
-        ensure_installed = {
-          "bash", "c", "dockerfile", "fish", "go", "json", "just",
-          "lua", "make", "markdown", "nix", "proto", "python",
-          "rust", "toml", "yaml", "query",
-        },
-        highlight = { enable = true, additional_vim_regex_highlighting = false },
-        indent = { enable = true },
+      require("nvim-treesitter").install({
+        "bash", "c", "dockerfile", "fish", "go", "json", "just",
+        "lua", "make", "markdown", "markdown_inline", "nix", "proto",
+        "python", "rust", "toml", "yaml", "query",
+      })
+      -- Start treesitter highlighting (+ experimental indent) per buffer.
+      -- pcall guards filetypes without an installed parser.
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(args)
+          if pcall(vim.treesitter.start, args.buf) then
+            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
       })
     end,
   },

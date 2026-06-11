@@ -244,66 +244,169 @@ home-manager 廃止に伴い、neovim プラグインを nixpkgs.vimPlugins か�
 - ~~delegation パターンの resolveVersion / check Vars~~ → tomei v0.1.8 で修正済み
 - ~~アーカイブ内の "./" エントリで展開失敗 (aqua 経由の一部パッケージ)~~ → tomei v0.1.8 で修正済み
 
-### Phase 8: nix 縮小 (home-manager → chezmoi + tomei グレースフル移行)
+### Phase 8: darwin2 の home-manager 撤去（chezmoi + tomei への完全移行）
 
-現在 darwin2 は home-manager (generation 10) がアクティブで、`~/.config/` 以下の主要設定ファイルは
-全て nix store へのシンボリックリンク。`fish`, `nvim` 等のバイナリも `~/.nix-profile/bin/` 経由。
+darwin2（仕事用 Mac、`DOTFILES_HOSTNAME=darwin2`）は HM generation 11 (2026-03-12) が現役。
+chezmoi は部分適用済み（`~/.config/{nvim,fish,zellij,ghostty,zed}` は実ファイル）、ただし
+`~/.config/git/config` は HM → `/nix/store/...` のシンボリックリンク。Homebrew は未インストール。
 
-chezmoi apply を先に実行すると HM のシンボリックリンクと衝突する。
-HM を先に削除するとバイナリも設定も消えて環境が壊れる。
-以下の手順で段階的に切り替える。
+以下のランブックで段階的に切り替える。各ステップ末尾に **Verify** と **Rollback** を記載。
+`tomei apply`, `chezmoi apply`, `home-manager switch` はユーザーが手動で実行する。
 
-#### Step 1: tomei apply でバイナリを並行インストール
+#### 決定事項
 
-- [x] `tomei apply ~/.config/tomei/` で全バイナリを `~/.local/bin/` や `~/.cargo/bin/` にインストール
-- HM と並行して動作する。PATH の優先順位で `~/.local/bin` > `~/.nix-profile/bin` なら tomei 版が使われる
-- docker, gcloud は tomei バグで失敗 → 手動インストール or tomei 修正後に再実行
+- **Python**: uv のみで管理。必要時に `uv python install 3.13`。brew へは追加しない
+- **rust-analyzer**: yatate `lang-tools.cue` の `rustTools` (cargo-binstall) で管理
+- **Docker**: Docker Desktop を手動インストール。tomei 管理しない
 
-#### Step 2: home-manager の設定ファイル管理を無効化
+#### Step A: Preflight（状態変更なし）
 
-- [ ] terakoya `nix/src/home/common/default.nix` で `programs.*` と `xdg.configFile` を無効化
-- [ ] `home-manager switch` で HM のシンボリックリンクが解除される（backup があればリストア）
-
-#### Step 3: chezmoi init + apply
-
-- [ ] `chezmoi init --source=/path/to/yatate --apply` で設定ファイルをデプロイ
-- `~/.config/` 以下が chezmoi 管理の実ファイルになる
-
-#### Step 4: home-manager のパッケージ管理を停止
-
-- [ ] terakoya `nix/src/home/` で `home.packages = [];` にして `home-manager switch`
-- `~/.nix-profile` からバイナリが削除され、tomei 版に完全切り替え
-
-#### Step 5: home-manager を完全削除
-
-- [ ] `nix profile remove home-manager-path && nix profile remove home-manager`
-- [ ] `rm -rf ~/.local/state/home-manager/`
-- [ ] `nix store gc`
-
-#### Step 6: terakoya nix/src/ クリーンアップ
-
-- [ ] `nix/src/home/` 全削除
-- [ ] `nix/src/flake.nix` から不要 input 削除 (`home-manager`, `fenix`, `nix-vscode-extensions`, `darwin`)
-- [ ] `mkDarwinConfiguration`, `mkHomeConfiguration` 関数・`homeConfigurations` output 削除
-- [ ] `nix flake update` で flake.lock 更新
-
-#### Step 7: NixOS hosts から GUI アプリ削除 (optional)
-
-- [ ] `nix/src/hosts/nixos/common/desktop/` から Chrome, Slack, Discord, Zoom, Wireshark を削除
-
-#### 注意事項
-
-- **fish ログインシェル**: `/etc/shells` に nix store パスが登録されている可能性。tomei の fish パスに `chsh` し直す
-- **nvim プラグイン**: HM 版は nixpkgs.vimPlugins、yatate 版は lazy.nvim。切り替え時に `~/.local/share/nvim/` をクリーンアップ
-- **nix-darwin**: darwin-rebuild の設定も確認
-
-#### 各 Step の検証
+- [ ] darwin2 で次を実行して想定外の差分がないことを確認:
 
 ```sh
-which fish && fish --version          # fish が使えるか
-which nvim && nvim --version          # nvim が使えるか
-readlink ~/.config/fish/config.fish   # nix store リンクでなく実ファイルか
-tomei plan ~/.config/tomei/           # tomei の状態確認
+tomei plan --system ~/.config/tomei/
+chezmoi diff
+home-manager generations | head -5
+which fish nvim gcloud ffmpeg ttyd python3 docker
+readlink ~/.config/git/config
+```
+
+#### Step B: yatate CUE にギャップ追加（yatate リポジトリ）
+
+- [x] `dot_config/tomei/lang-tools.cue` の `rustTools` に `rust-analyzer: {package: "rust-analyzer"}` を追加
+- [ ] `tomei validate ~/.config/tomei/` で検証
+- [ ] コミット
+
+#### Step C: Homebrew + brew 管理バイナリ導入（darwin2）
+
+- [ ] `tomei apply --system ~/.config/tomei/` を実行（初回は Homebrew 本体を入れる、sudo プロンプト発生）
+
+**Verify**:
+```sh
+which brew
+/opt/homebrew/bin/fish --version
+/opt/homebrew/bin/nvim --version
+gcloud --version
+ttyd --version
+which rust-analyzer   # ~/.cargo/bin/rust-analyzer
+```
+
+**Rollback**: `brew uninstall <pkg>`。HM 版が `~/.nix-profile/bin/` に残るため復旧可能。
+
+#### Step D: login shell を brew fish に切り替え（darwin2）
+
+```sh
+echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells
+chsh -s /opt/homebrew/bin/fish
+```
+
+**Verify**（新ターミナルで）: `echo $SHELL` = `/opt/homebrew/bin/fish`、`command -v fish` = `/opt/homebrew/bin/fish`
+
+**Rollback**: `chsh -s ~/.nix-profile/bin/fish` または `chsh -s /bin/zsh`
+
+#### Step E: git config を chezmoi 管理に移譲（darwin2）
+
+```sh
+rm ~/.config/git/config
+chezmoi apply ~/.config/git/config
+```
+
+**Verify**: `readlink ~/.config/git/config` が空（実ファイル）、`git config --global user.email` が期待値、`git commit -S` が通る
+
+**Rollback**: `home-manager switch` で HM シンボリックリンクが復元
+
+#### Step F: terakoya HM の `programs.*` / `xdg.configFile` を無効化（terakoya リポジトリ）
+
+- [ ] `nix/src/home/common/{shell,editor,tools}/**` を編集し、fish / neovim / git / starship / zellij / zoxide / tmux / vscode の `programs.*` と `xdg.configFile.*` を削除（import 外しでも可）
+- [ ] `home.packages` はまだ残す（バイナリ喪失を避ける）
+- [ ] darwin2 で `home-manager switch --flake ~/workspace/github.com/terassyi/terakoya/nix/src#terashima@darwin2`
+
+**Verify**: `~/.config/` 配下に HM の `/nix/store` リンクが再発生しない。chezmoi 実ファイルが残っている
+
+**Rollback**: `home-manager rollback`
+
+#### Step G: HM `home.packages` を空にする（terakoya リポジトリ）
+
+- [ ] `nix/src/home/common/{tools,lang}/**` と `nix/src/home/darwin/darwin2/**` の `home.packages` を `[]` に（モジュール丸ごと削除も可）
+- [ ] `home-manager switch --flake ~/workspace/github.com/terassyi/terakoya/nix/src#terashima@darwin2`
+
+**Verify**:
+```sh
+which fish nvim gcloud ttyd        # /opt/homebrew/bin/...
+which ffmpeg rg fd jq bat starship # ~/.local/share/aquaproj-aqua/... など
+which cargo rustc rust-analyzer    # ~/.cargo/bin
+which go gopls                     # tomei go runtime
+which docker                       # 未 or /usr/local/bin/docker（Step H 後）
+which python3                      # 未（必要なら `uv python install 3.13`）
+nvim +checkhealth                  # 動作確認
+fish -c "functions"                # 関数 autoload
+```
+
+**Rollback**: `home-manager rollback`
+
+#### Step H: Docker Desktop 手動インストール（必要な場合）
+
+- [ ] Docker Desktop.app を導入し `docker ps` を確認
+
+#### Step I: Neovim 状態ディレクトリクリーンアップ
+
+HM 版プラグインが `/nix/store/...` 参照を持つため。
+
+```sh
+rm -rf ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim
+nvim +Lazy +qall
+```
+
+**Verify**: `:checkhealth` エラー無し、LSP (`gopls`, `rust-analyzer`) が動作
+
+#### Step J: home-manager 本体を削除
+
+```sh
+nix profile remove home-manager-path
+nix profile remove home-manager
+rm -rf ~/.local/state/home-manager/
+nix store gc
+```
+
+**Verify**: `command -v home-manager` が空、シェル・エディタが通常稼働
+
+**Rollback**: `nix profile install nixpkgs#home-manager` + 旧 flake を再適用
+
+#### Step K: terakoya flake クリーンアップ（terakoya リポジトリ）
+
+- [ ] `nix/src/home/` ツリー全削除
+- [ ] `nix/src/flake.nix` から `terashima@darwin2` ほか `homeConfigurations` エントリ削除
+- [ ] flake inputs から `home-manager`, `fenix`, `nix-vscode-extensions`, `darwin` を削除
+- [ ] `mkDarwinConfiguration`, `mkHomeConfiguration` 関数 / `homeConfigurations` output を削除
+- [ ] `nix flake update && nix flake check`
+- [ ] commit
+
+#### Step L: yatate ドキュメント更新
+
+- [ ] 本 Phase 8 の完了項目を `[x]` でマークしてコミット
+
+#### リスク
+
+- **login shell 順序**: Step D（chsh）を Step G（HM 削除）より先に。順序を逆にすると fish バイナリ喪失と同時にターミナルが起動できなくなる
+- **nvim プラグイン**: Step I を忘れると `/nix/store` を指す古い参照で lazy.nvim が失敗
+- **gcloud components**: brew 版はユーザー側で `gcloud components install kubectl` 等の再インストールが必要になるケースあり
+- **Docker daemon**: HM の `docker` は CLI のみ。daemon は Docker Desktop が同梱するため Step H 以降を使う
+- **SSH 署名**: Step E で git config 置換直後、`git commit -S` が通ることを確認
+
+#### 検証マトリクス（移行完了後）
+
+```
+which fish            → /opt/homebrew/bin/fish
+which nvim            → /opt/homebrew/bin/nvim
+which gcloud ttyd     → /opt/homebrew/bin/...
+which ffmpeg rg fd jq bat starship → ~/.local/... (tomei aqua)
+which cargo rustc rust-analyzer    → ~/.cargo/bin
+which go gopls        → ~/.local/... (tomei)
+which docker          → /usr/local/bin/docker (Docker Desktop) or 未
+readlink ~/.config/git/config       → (空: 実ファイル)
+readlink ~/.config/fish/config.fish → (空: 実ファイル)
+home-manager --version → command not found
+echo $SHELL           → /opt/homebrew/bin/fish
 ```
 
 ### Phase 9: CI ✅
