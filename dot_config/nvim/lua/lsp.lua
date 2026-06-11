@@ -12,7 +12,7 @@ vim.keymap.set('n', 'ga', '<cmd>lua vim.lsp.buf.code_action()<CR>')
 vim.keymap.set('n', 'gu', '<cmd>lua vim.lsp.buf.hover()<CR>')
 vim.keymap.set('n', 'g]', '<cmd>lua vim.diagnostic.goto_next()<CR>')
 vim.keymap.set('n', 'g[', '<cmd>lua vim.diagnostic.goto_prev()<CR>')
-vim.keymap.set('n', 'gf', '<cmd>lua vim.lsp.buf.formatting()<CR>')
+vim.keymap.set('n', 'gf', '<cmd>lua vim.lsp.buf.format()<CR>')
 
 -- For Formatting
 require('conform').setup({
@@ -20,7 +20,6 @@ require('conform').setup({
 		rust = { "rustfmt", lsp_format = "fallback" },
 		go = { "goimports", "gofmt" },
 		lua = { "stylua" },
-		nix = { "nixfmt" },
 	},
 
 	format_on_save = {
@@ -78,20 +77,22 @@ cmp.setup({
 	end, { "i", "s" }),
 })
 
-local lspconfig = require('lspconfig')
+-- LSP servers (Neovim 0.11+ core API). nvim-lspconfig ships the base
+-- definitions under lsp/<name>.lua; vim.lsp.config merges these overrides,
+-- and vim.lsp.enable activates them.
 
 -- For Rust
-lspconfig.rust_analyzer.setup {
+vim.lsp.config('rust_analyzer', {
 	settings = {
 		['rust-analyzer'] = {},
 	},
-}
+})
 
 -- For Go
-lspconfig.gopls.setup {
+vim.lsp.config('gopls', {
 	cmd = { "gopls" },
-	filetypes = { "go", "gomod", "gowork", "gotmlp" },
-	root_dir = lspconfig.util.root_pattern("go.work", "go.mod"),
+	filetypes = { "go", "gomod", "gowork", "gotmpl" },
+	root_markers = { "go.work", "go.mod" },
 	settings = {
 		gopls = {
 			analyses = {
@@ -100,7 +101,6 @@ lspconfig.gopls.setup {
 			staticcheck = true,
 		},
 	},
-}
+})
 
--- For Nix
-lspconfig.nixd.setup {}
+vim.lsp.enable({ 'rust_analyzer', 'gopls' })

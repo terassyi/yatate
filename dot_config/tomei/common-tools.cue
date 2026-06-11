@@ -41,6 +41,36 @@ cliTools: aqua.#AquaToolSet & {
 	}
 }
 
+// tree-sitter CLI: required by nvim-treesitter's `main` branch to generate and
+// compile parsers from grammar (the archived plugin no longer ships precompiled
+// parsers; needed wherever neovim runs). Installed via explicit commands rather
+// than the aqua registry/download pattern because neither tomei path works for
+// tree-sitter's release assets:
+//   - the registry asset is a bare `.gz`, which tomei cannot extract (#272);
+//   - the upstream `.zip` stores the binary as 0644 (no exec bit), and tomei's
+//     extractor preserves that mode, so the placed binary is not executable.
+// So curl|gunzip the raw binary into ~/.local/bin and chmod +x it ourselves.
+// Map tomei's os/arch (darwin/amd64) to tree-sitter's asset naming (macos/x64).
+treeSitter: {
+	_tsOS:   {darwin: "macos", linux: "linux"}[_os]
+	_tsArch: {amd64: "x64", arm64: "arm64"}[_arch]
+	_url:    "https://github.com/tree-sitter/tree-sitter/releases/download/v0.26.9/tree-sitter-\(_tsOS)-\(_tsArch).gz"
+	_fetch:  "mkdir -p $HOME/.local/bin && rm -f $HOME/.local/bin/tree-sitter && curl -fsSL \(_url) | gunzip -c > $HOME/.local/bin/tree-sitter && chmod +x $HOME/.local/bin/tree-sitter"
+
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: name: "tree-sitter"
+	spec: {
+		version: "v0.26.9"
+		commands: {
+			install: [_fetch]
+			update: [_fetch]
+			check: ["$HOME/.local/bin/tree-sitter --version 2>/dev/null | grep -q 0.26.9"]
+			remove: ["rm -f $HOME/.local/bin/tree-sitter"]
+		}
+	}
+}
+
 claudeCode: {
 	apiVersion: "tomei.terassyi.net/v1beta1"
 	kind:       "Tool"

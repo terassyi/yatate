@@ -37,6 +37,11 @@ if command -q eza
     alias ll 'eza -lh'
     alias la 'eza -alh'
 end
+if command -q nvim
+    alias vim nvim
+    alias vi nvim
+    set -gx EDITOR nvim
+end
 
 # ── Abbreviations ──────────────────────────────────────
 abbr -a g git
