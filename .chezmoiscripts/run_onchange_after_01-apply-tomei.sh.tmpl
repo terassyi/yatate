@@ -27,20 +27,20 @@ tomei init --yes
 tomei validate "$TOMEI_DIR"
 
 {{ if .is_darwin -}}
-# darwin: Homebrew は privileged リソース。sudo は tomei が必要な時だけ内部プロンプト。
-# CI (GitHub Actions 等) は brew が pre-install 済みで、tomei の #Homebrew が
-# sudo で wrap されると brew install スクリプトが root 実行を reject するため
-# --system を付けない（privileged リソースはスキップされる）。
-{{ else -}}
-# linux: SystemPackage (apt) は privileged リソース。インストールには --system が必要。
-# CI (GitHub Actions 等) では apt/sudo をいじらず SystemPackage も不要なため
-# --system を付けない（privileged リソースはスキップされる）。
-{{ end -}}
+# darwin: CI では --system を付けない。macOS runner は Homebrew が pre-install 済みで、
+# CI で formula を入れ直すのは重く不要なため privileged リソースはスキップする。
+# 実機 bootstrap (CI 以外) では --system で Homebrew/brewTools を適用する。
 if [ -n "${CI:-}" ]; then
     TOMEI_APPLY_FLAGS=""
 else
     TOMEI_APPLY_FLAGS="--system"
 fi
+{{ else -}}
+# linux: 常に --system。apt SystemPackage (base/build/bpf/... の各 SystemPackageSet)
+# は sudo を使うが、CI コンテナ/ランナーでは sudo が passwordless なので非対話で通り、
+# テストが実際の SystemPackage 導入フローを検証できる。
+TOMEI_APPLY_FLAGS="--system"
+{{ end -}}
 
 if [ "${SKIP_TOMEI_APPLY:-}" = "true" ]; then
     echo "Skipping tomei apply (SKIP_TOMEI_APPLY=true)"

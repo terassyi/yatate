@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+{{ if .is_linux -}}
+# Generate the en_US.UTF-8 locale (config sets LANG=en_US.UTF-8). The `locales`
+# package is installed via tomei's `base` SystemPackageSet, but the locale must
+# be generated explicitly. Runs after run_onchange_after_01-apply-tomei.
+# Idempotent: skip if already generated. Guard on locale-gen so a missing
+# `locales` package degrades to a warning instead of a hard failure.
+if ! command -v locale-gen >/dev/null 2>&1; then
+    echo "WARN: locale-gen not found (install the 'locales' package); skipping"
+elif ! locale -a 2>/dev/null | grep -qi "en_US.utf8"; then
+    echo "Generating en_US.UTF-8 locale..."
+    sudo locale-gen en_US.UTF-8
+fi
+{{ end -}}
