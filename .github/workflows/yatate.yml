@@ -33,6 +33,10 @@ jobs:
   test:
     needs: validate
     strategy:
+      # Runners stay on ubuntu-24.04: GitHub-hosted ubuntu-26.04 / -arm labels
+      # are not yet GA (ubuntu-latest still maps to 24.04). The container-mode
+      # jobs already test on Ubuntu 26.04 via the Dockerfile (FROM ubuntu:26.04).
+      # Bump these to ubuntu-26.04 / ubuntu-26.04-arm once GitHub provides them.
       matrix:
         include:
           - runner: ubuntu-24.04
