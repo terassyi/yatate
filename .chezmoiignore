@@ -3,6 +3,8 @@
 Makefile
 Dockerfile
 README.md
+CLAUDE.md
+docs/
 scripts/
 testdata/
 plaintext/

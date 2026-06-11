@@ -1,4 +1,20 @@
 {
+  "edit_predictions": {
+    "provider": "none",
+    "codestral": {
+      "model": "codestral-latest"
+    }
+  },
+  "cli_default_open_behavior": "new_window",
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "git_panel": {
+    "dock": "left"
+  },
   "agent_servers": {
     "claude-acp": {
       "type": "registry"
@@ -42,11 +58,13 @@
   "buffer_font_weight": 400,
   "buffer_line_height": "comfortable",
   "project_panel": {
+    "dock": "left",
     "hide_gitignore": false,
     "auto_fold_dirs": false
   },
   "base_keymap": "VSCode",
   "agent": {
+    "dock": "right",
     "enabled": true,
     "button": true,
     "favorite_models": [],

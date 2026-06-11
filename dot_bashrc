@@ -5,3 +5,8 @@
 if command -v tomei &>/dev/null; then
     eval "$(tomei env --shell bash)"
 fi
+
+# Rancher Desktop (docker)
+if [ -d "$HOME/.rd/bin" ]; then
+    export PATH="$HOME/.rd/bin:$PATH"
+fi
