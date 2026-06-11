@@ -75,7 +75,6 @@ yatate/                              # chezmoi ソースルート
 │
 ├── .chezmoiscripts/
 │   ├── run_once_before_00-bootstrap-dirs.sh.tmpl
-│   ├── run_onchange_before_01-install-packages.sh.tmpl
 │   ├── run_once_before_02-install-tomei.sh.tmpl
 │   ├── run_onchange_after_01-apply-tomei.sh.tmpl
 │   ├── run_onchange_after_02-download-skim-keybindings.sh.tmpl
@@ -145,7 +144,6 @@ OS・GUI 条件で不要ファイルを除外:
 | 順序 | スクリプト | 内容 |
 |---|---|---|
 | before 00 | bootstrap-dirs | ~/workspace ディレクトリ作成 |
-| before 01 | install-packages | 最低限の OS パッケージ (curl, git, fish) |
 | before 02 | install-tomei | tomei バイナリを ~/.local/bin にダウンロード |
 | (ファイル適用) | chezmoi がドットファイルを配置 | |
 | after 01 | apply-tomei | tomei init + apply (マニフェスト hash 変更時のみ再実行) |
