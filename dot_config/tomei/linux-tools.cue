@@ -69,7 +69,11 @@ commonBuild: {
 	}
 }
 
-// bpf-dev: eBPF compilation (clang/llvm), libbpf/CO-RE, bpftool/perf.
+// bpf-dev: eBPF compilation (clang/llvm), libbpf/CO-RE, bpftool, perf.
+// bpftool is the standalone package (kernel-independent), preferred over the
+// linux-tools-generic copy which is tied to the running kernel version.
+// linux-tools-generic is kept for perf. libclang-dev provides libclang for
+// bindgen (used by rust+aya's aya-tool to generate kernel bindings).
 bpfDev: {
 	apiVersion: "tomei.terassyi.net/v1beta1"
 	kind:       "SystemPackageSet"
@@ -81,6 +85,8 @@ bpfDev: {
 			"llvm",
 			"libbpf-dev",
 			"libelf-dev",
+			"libclang-dev",
+			"bpftool",
 			"linux-headers-generic",
 			"linux-tools-generic",
 		]

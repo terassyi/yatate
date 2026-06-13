@@ -16,6 +16,7 @@ get_bin_name() {
         homebrew)          echo "brew" ;;
         neovim)            echo "nvim" ;;
         google-cloud-sdk)  echo "gcloud" ;;
+        bindgen-cli)       echo "bindgen" ;;
         *)                 echo "$1" ;;
     esac
 }
@@ -80,6 +81,18 @@ while [ "$i" -lt "$tool_count" ]; do
             echo "  OK: $name installed via rustup component"
         else
             echo "FAIL: $name not found in rustup component list --installed"
+            FAIL=$((FAIL + 1))
+        fi
+        continue
+    fi
+
+    # Toolchains (e.g. rust-nightly) are installed via rustup but produce no
+    # PATH binary; verify the toolchain is present instead of a binary.
+    if [ "$name" = "rust-nightly" ]; then
+        if "$HOME/.cargo/bin/rustup" toolchain list 2>/dev/null | grep -q '^nightly'; then
+            echo "  OK: $name installed (rustup toolchain)"
+        else
+            echo "FAIL: $name toolchain not installed"
             FAIL=$((FAIL + 1))
         fi
         continue

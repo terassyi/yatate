@@ -54,6 +54,35 @@ rustTools: rust.#BinstallToolSet & {
 		"cargo-expand": {package: "cargo-expand"}
 		"cargo-generate": {package: "cargo-generate"}
 		jj: {package: "jj-cli"}
+		// eBPF (rust + aya): bpf-linker links eBPF bytecode (binstall = prebuilt,
+		// so no system LLVM build needed); bindgen-cli is used by aya-tool to
+		// generate Rust bindings for kernel structures (needs libclang at runtime,
+		// provided by the bpf-dev SystemPackageSet).
+		"bpf-linker": {package: "bpf-linker"}
+		"bindgen-cli": {package: "bindgen-cli"}
+	}
+}
+
+// Rust nightly toolchain + rust-src, required to build aya-ebpf programs
+// (`cargo +nightly build -Z build-std=core` for the bpfel-unknown-none target).
+// Installed via rustup (provided by the `rust` runtime); dependsOn orders this
+// after that runtime. The default toolchain stays stable (see runtimes.cue).
+rustNightly: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "rust-nightly"
+		description: "Rust nightly toolchain with rust-src (aya-ebpf build-std)"
+	}
+	spec: {
+		version:   "nightly"
+		dependsOn: ["rust"]
+		commands: {
+			install: ["~/.cargo/bin/rustup toolchain install nightly --profile minimal --component rust-src --no-self-update"]
+			update: ["~/.cargo/bin/rustup update nightly"]
+			check: ["~/.cargo/bin/rustup toolchain list | grep -q '^nightly'"]
+			remove: ["~/.cargo/bin/rustup toolchain uninstall nightly"]
+		}
 	}
 }
 
