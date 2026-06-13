@@ -16,6 +16,7 @@ get_bin_name() {
         homebrew)          echo "brew" ;;
         neovim)            echo "nvim" ;;
         google-cloud-sdk)  echo "gcloud" ;;
+        bindgen-cli)       echo "bindgen" ;;
         *)                 echo "$1" ;;
     esac
 }
@@ -80,6 +81,19 @@ while [ "$i" -lt "$tool_count" ]; do
             echo "  OK: $name installed via rustup component"
         else
             echo "FAIL: $name not found in rustup component list --installed"
+            FAIL=$((FAIL + 1))
+        fi
+        continue
+    fi
+
+    # Toolchains (e.g. rust-nightly) are installed via rustup but produce no
+    # PATH binary. Verify the rust-src component (the reason this toolchain
+    # exists for aya-ebpf build-std), which also implies nightly is present.
+    if [ "$name" = "rust-nightly" ]; then
+        if "$HOME/.cargo/bin/rustup" component list --toolchain nightly --installed 2>/dev/null | grep -q '^rust-src'; then
+            echo "  OK: $name installed (nightly toolchain with rust-src)"
+        else
+            echo "FAIL: $name nightly toolchain or rust-src component missing"
             FAIL=$((FAIL + 1))
         fi
         continue
