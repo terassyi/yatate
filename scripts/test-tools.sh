@@ -87,12 +87,13 @@ while [ "$i" -lt "$tool_count" ]; do
     fi
 
     # Toolchains (e.g. rust-nightly) are installed via rustup but produce no
-    # PATH binary; verify the toolchain is present instead of a binary.
+    # PATH binary. Verify the rust-src component (the reason this toolchain
+    # exists for aya-ebpf build-std), which also implies nightly is present.
     if [ "$name" = "rust-nightly" ]; then
-        if "$HOME/.cargo/bin/rustup" toolchain list 2>/dev/null | grep -q '^nightly'; then
-            echo "  OK: $name installed (rustup toolchain)"
+        if "$HOME/.cargo/bin/rustup" component list --toolchain nightly --installed 2>/dev/null | grep -q '^rust-src'; then
+            echo "  OK: $name installed (nightly toolchain with rust-src)"
         else
-            echo "FAIL: $name toolchain not installed"
+            echo "FAIL: $name nightly toolchain or rust-src component missing"
             FAIL=$((FAIL + 1))
         fi
         continue

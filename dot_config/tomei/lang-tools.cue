@@ -68,6 +68,8 @@ rustTools: rust.#BinstallToolSet & {
 // Installed via rustup (provided by the `rust` runtime); dependsOn orders this
 // after that runtime. The default toolchain stays stable (see runtimes.cue).
 rustNightly: {
+	_rustup: "~/.cargo/bin/rustup"
+
 	apiVersion: "tomei.terassyi.net/v1beta1"
 	kind:       "Tool"
 	metadata: {
@@ -78,10 +80,12 @@ rustNightly: {
 		version:   "nightly"
 		dependsOn: ["rust"]
 		commands: {
-			install: ["~/.cargo/bin/rustup toolchain install nightly --profile minimal --component rust-src --no-self-update"]
-			update: ["~/.cargo/bin/rustup update nightly"]
-			check: ["~/.cargo/bin/rustup toolchain list | grep -q '^nightly'"]
-			remove: ["~/.cargo/bin/rustup toolchain uninstall nightly"]
+			install: ["\(_rustup) toolchain install nightly --profile minimal --component rust-src --no-self-update"]
+			update: ["\(_rustup) update nightly --no-self-update"]
+			// Verify the rust-src component (the reason this toolchain exists);
+			// listing it implies the nightly toolchain is present too.
+			check: ["\(_rustup) component list --toolchain nightly --installed 2>/dev/null | grep -q '^rust-src'"]
+			remove: ["\(_rustup) toolchain uninstall nightly"]
 		}
 	}
 }
