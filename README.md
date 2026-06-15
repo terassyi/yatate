@@ -60,11 +60,14 @@ chezmoi のビルトイン age サポートを使用するため、外部 `age` 
 プロファイル専用の暗号化ファイルは、他のプロファイルのホストでは復号できない。
 `.chezmoiignore` のテンプレート条件により、他プロファイルのファイルは source state から除外される。
 
-| プロファイル | ホスト | age 鍵ファイル | Secret Manager シークレット名 |
+| プロファイル | 判定方法 | age 鍵ファイル | Secret Manager シークレット名 |
 |------------|--------|--------------|-------------------|
-| personal | teracarbon, teradev, devvm | `~/.config/chezmoi/key-personal.txt` | `chezmoi-age-key` |
-| work | fukdesk, darwin2 | `~/.config/chezmoi/key-work.txt` | `chezmoi-age-key` |
-| test | dev (CI/testuser) | `~/.config/chezmoi/key-test.txt` | なし（GitHub Actions シークレット `AGE_TEST_SECRET_KEY` で管理） |
+| personal | `chezmoi init` 時に選択（既定） | `~/.config/chezmoi/key-personal.txt` | `chezmoi-age-key` |
+| work | `chezmoi init` 時に選択 | `~/.config/chezmoi/key-work.txt` | `chezmoi-age-key` |
+| test | `username` が `runner`/`testuser` で自動 | `~/.config/chezmoi/key-test.txt` | なし（GitHub Actions シークレット `AGE_TEST_SECRET_KEY` で管理） |
+
+profile は `chezmoi init` 時に一度だけ選択して永続化される（`promptChoiceOnce`）。
+ホスト名には依存しないため、内部ホスト名はリポジトリに含まれない。
 
 ### 暗号化ファイルの追加
 
