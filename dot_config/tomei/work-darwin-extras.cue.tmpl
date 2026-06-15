@@ -1,5 +1,5 @@
 package tomei
-{{ if eq .hostname "darwin2" }}
+{{ if and (eq .profile "work") .is_darwin }}
 import "tomei.terassyi.net/presets/brew"
 
 ttyd: brew.#Formula & {

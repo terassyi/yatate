@@ -1,33 +1,35 @@
-{{- /* ホスト情報の取得 */ -}}
-{{- $hostname := .chezmoi.hostname -}}
-{{- if env "DOTFILES_HOSTNAME" -}}
-  {{- $hostname = env "DOTFILES_HOSTNAME" -}}
-{{- end -}}
+{{- /* Host info */ -}}
 {{- $os := .chezmoi.os -}}
 {{- $username := .chezmoi.username -}}
 
-{{- /* CI/テスト環境のオーバーライド (runner: GitHub Actions, testuser: コンテナテスト) */ -}}
-{{- if or (eq $username "runner") (eq $username "testuser") -}}
-  {{- $hostname = "dev" -}}
-{{- end -}}
-
-{{- /* デスクトップ環境の判定 */ -}}
-{{- $headless := true -}}
-{{- if eq $os "darwin" -}}
-  {{- $headless = false -}}
-{{- else if or (eq $hostname "teracarbon") (eq $hostname "teradev") -}}
-  {{- $headless = false -}}
-{{- else if eq $hostname "devvm" -}}
-  {{- $headless = false -}}
-{{- end -}}
-
-{{- /* プロファイル判定 (personal / work / test) */ -}}
-{{- $profile := "personal" -}}
-{{- if or (eq $hostname "fukdesk") (eq $hostname "darwin2") -}}
-  {{- $profile = "work" -}}
-{{- end -}}
-{{- if or (eq $username "runner") (eq $username "testuser") -}}
+{{- /* Profile (personal / work / test). Resolution order:
+       1. DOTFILES_PROFILE env — explicit override; use this to switch profiles
+          (e.g. `DOTFILES_PROFILE=work chezmoi init`). The value is persisted in
+          [data].profile below.
+       2. CI/containers: test (runner = GitHub Actions, testuser = container).
+       3. Otherwise asked once on `chezmoi init`, then reused from the persisted
+          [data].profile on later runs.
+       Never derived from the hostname, so no internal hostname is exposed. */ -}}
+{{- $profile := "" -}}
+{{- if env "DOTFILES_PROFILE" -}}
+  {{- $profile = env "DOTFILES_PROFILE" -}}
+{{- else if or (eq $username "runner") (eq $username "testuser") -}}
   {{- $profile = "test" -}}
+{{- else -}}
+  {{- $profile = promptChoiceOnce . "profile" "Select dotfiles profile" (list "personal" "work") -}}
+{{- end -}}
+
+{{- /* Headless (no desktop GUI). DOTFILES_HEADLESS=true/false overrides;
+       darwin is always GUI; CI is headless; otherwise asked once and reused. */ -}}
+{{- $headless := true -}}
+{{- if env "DOTFILES_HEADLESS" -}}
+  {{- $headless = (eq (env "DOTFILES_HEADLESS") "true") -}}
+{{- else if eq $os "darwin" -}}
+  {{- $headless = false -}}
+{{- else if or (eq $username "runner") (eq $username "testuser") -}}
+  {{- $headless = true -}}
+{{- else -}}
+  {{- $headless = promptBoolOnce . "headless" "Headless (no desktop GUI)?" true -}}
 {{- end -}}
 
 encryption = "age"
@@ -53,7 +55,6 @@ recipient = "age148yv50pmelaed8wt2yykc57ycv74jm9wc6l6udg9ekx82qc2pq4qqyfalq"
 {{- end }}
 
 [data]
-hostname  = "{{ $hostname }}"
 username  = "{{ $username }}"
 os        = "{{ $os }}"
 headless  = {{ $headless }}
