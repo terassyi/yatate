@@ -34,7 +34,7 @@
     "diffEditor.experimental.useTrueInlineView": true,
     "remote.SSH.useLocalServer": false,
     "remote.SSH.remotePlatform": {
-        "fukdesk": "linux",
+        "fuklap": "linux",
         "teradev": "linux",
         "dev": "linux"
     },
