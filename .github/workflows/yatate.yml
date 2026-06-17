@@ -33,10 +33,14 @@ jobs:
   test:
     needs: validate
     strategy:
-      # Runners stay on ubuntu-24.04: GitHub-hosted ubuntu-26.04 / -arm labels
-      # are not yet GA (ubuntu-latest still maps to 24.04). The container-mode
-      # jobs already test on Ubuntu 26.04 via the Dockerfile (FROM ubuntu:26.04).
-      # Bump these to ubuntu-26.04 / ubuntu-26.04-arm once GitHub provides them.
+      # Linux is tested only in container mode (Dockerfile FROM ubuntu:26.04),
+      # which matches the deploy target. There is deliberately no Linux *native*
+      # leg: GitHub-hosted ubuntu-26.04 runners are Preview-only (no SLA), and
+      # ubuntu-24.04 native diverges from the 26.04 target — e.g. bpftool is a
+      # real package on 26.04 but a virtual one on 24.04, so the bpf-dev
+      # SystemPackageSet only resolves on 26.04. The container leg runs on the
+      # GA ubuntu-24.04 runner but exercises the 26.04 image. macOS has no
+      # container option, so it keeps a native leg.
       matrix:
         include:
           - runner: ubuntu-24.04
@@ -45,12 +49,6 @@ jobs:
           - runner: ubuntu-24.04-arm
             arch: arm64
             mode: container
-          - runner: ubuntu-24.04
-            arch: amd64
-            mode: native
-          - runner: ubuntu-24.04-arm
-            arch: arm64
-            mode: native
           - runner: macos-latest
             arch: arm64
             mode: native
