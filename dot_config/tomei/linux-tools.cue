@@ -129,15 +129,13 @@ media: {
 // google-cloud-cli (gcloud): used by the Phase 2 age-key fetch from Secret
 // Manager and for general GCP work. Not in Ubuntu's archive, so Google's APT
 // repository is registered first. tomei fetches the armored signing key,
-// verifies it against keyHash (fail-closed on mismatch), dearmors it with gpg
-// into /usr/share/keyrings/google-cloud-sdk.gpg, writes a signed-by sources
-// list, and runs `apt-get update`. The `gcloud` SystemPackage binds to this
-// repo via repositoryRef, which is what orders the repo (and its apt-get
-// update) before the install — tomei does NOT implicitly order repos ahead of
-// package sets, so without repositoryRef they land in the same layer and the
-// install races ahead, failing because google-cloud-cli is not yet indexed.
-// gpg (gnupg) must exist BEFORE the system apply (a SystemPackageSet would run
-// too late), so it is a prerequisite provided by the base image / Phase 0.
+// verifies it against keyHash (fail-closed on mismatch), dearmors it in-process
+// (tomei v0.2.2, #283 — no gnupg needed) into /usr/share/keyrings, writes a
+// signed-by sources list, and runs `apt-get update`. The `gcloud` SystemPackage
+// binds to this repo via repositoryRef, which is what orders the repo (and its
+// apt-get update) before the install — tomei does NOT implicitly order repos
+// ahead of package resources, so without repositoryRef they land in the same
+// layer and the install races ahead, failing (google-cloud-cli not yet indexed).
 // If Google rotates the key, re-derive keyHash and update it here:
 //   curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sha256sum
 gcloudRepo: {
