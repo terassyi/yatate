@@ -1,0 +1,35 @@
+#!/bin/bash
+set -euo pipefail
+{{ if .is_linux -}}
+# Add the current user to the `docker` group so the Docker CLI works without
+# sudo. docker-ce (installed via tomei's docker SystemPackage) creates the
+# `docker` group and, on systemd hosts, its postinst enables the daemon — but it
+# does NOT add the invoking user to the group, so we do that here. Ordered after
+# run_onchange_after_01-apply-tomei (01 < 93), so docker-ce is already installed.
+# Idempotent: skip when already a member. New membership only takes effect in a
+# fresh login session (or after `newgrp docker`).
+if ! command -v docker >/dev/null 2>&1; then
+    echo "WARN: docker not found (docker-ce not installed); skipping group setup"
+else
+    USER_NAME="$(whoami)"
+
+    if ! getent group docker >/dev/null 2>&1; then
+        echo "Creating docker group..."
+        sudo groupadd docker
+    fi
+
+    if id -nG "$USER_NAME" | tr ' ' '\n' | grep -qx docker; then
+        echo "$USER_NAME is already in the docker group"
+    else
+        echo "Adding $USER_NAME to the docker group..."
+        sudo usermod -aG docker "$USER_NAME"
+        echo "Added. Re-login (or run 'newgrp docker') for it to take effect."
+    fi
+
+    # No `systemctl enable` here: on Debian/Ubuntu the docker-ce deb postinst
+    # already enables and starts docker.service + containerd.service (only
+    # RPM-based distros need manual enabling). Group membership is the one
+    # post-install step the package does NOT do, so it is all we handle.
+    # https://docs.docker.com/engine/install/linux-postinstall/
+fi
+{{ end -}}
