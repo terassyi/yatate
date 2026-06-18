@@ -166,3 +166,69 @@ gcloud: {
 		package:       "google-cloud-cli"
 	}
 }
+
+// docker (Docker Engine / CE): not in Ubuntu's archive, so Docker's official
+// APT repository is registered first, mirroring the gcloudRepo flow above —
+// tomei fetches the armored signing key, verifies it against keyHash
+// (fail-closed on mismatch), dearmors it in-process (tomei v0.2.2, no gnupg)
+// into /usr/share/keyrings, writes a signed-by sources list, and runs
+// `apt-get update`. suite is the Ubuntu codename (resolute = 26.04, the target;
+// see Dockerfile / CI ubuntu-26.04) — Docker keys its dists by codename, so this
+// tracks the OS release rather than a version-independent suite like cloud-sdk.
+// If Docker rotates the key, re-derive keyHash and update it here:
+//   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sha256sum
+dockerRepo: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "SystemPackageRepository"
+	metadata: name: "docker"
+	spec: {
+		installerRef: "apt"
+		apt: {
+			url:     "https://download.docker.com/linux/ubuntu"
+			keyUrl:  "https://download.docker.com/linux/ubuntu/gpg"
+			keyHash: "sha256:1500c1f56fa9e26b9b8f42452a553675796ade0807cdce11975eb98170b3a570"
+			suite:   "resolute"
+			components: ["stable"]
+		}
+	}
+}
+
+// docker-ce: the Docker Engine daemon. repositoryRef binds it to dockerRepo so
+// tomei orders the repo (and its apt-get update) before install. docker-ce
+// Depends on containerd.io and docker-ce-cli, which apt pulls in automatically;
+// the buildx and compose plugins are separate packages (not Depends/Recommends)
+// and so are declared explicitly below per Docker's official install steps.
+dockerCe: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "SystemPackage"
+	metadata: name: "docker-ce"
+	spec: {
+		installerRef:  "apt"
+		repositoryRef: "docker"
+		package:       "docker-ce"
+	}
+}
+
+// docker-buildx-plugin: the `docker buildx` builder (BuildKit) subcommand.
+dockerBuildx: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "SystemPackage"
+	metadata: name: "docker-buildx-plugin"
+	spec: {
+		installerRef:  "apt"
+		repositoryRef: "docker"
+		package:       "docker-buildx-plugin"
+	}
+}
+
+// docker-compose-plugin: the `docker compose` (Compose v2) subcommand.
+dockerCompose: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "SystemPackage"
+	metadata: name: "docker-compose-plugin"
+	spec: {
+		installerRef:  "apt"
+		repositoryRef: "docker"
+		package:       "docker-compose-plugin"
+	}
+}
