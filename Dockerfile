@@ -12,14 +12,14 @@ ENV CI=true
 # jq is required by dot_config/zed/modify_settings.json.tmpl during `chezmoi
 # apply`, i.e. before tomei runs — so it must be a base-image package, not a
 # tomei SystemPackage. (Runtime jq also comes from the aqua cliTools set.)
-# gnupg provides `gpg`, required by tomei's SystemPackageRepository backend to
-# dearmor signing keys (e.g. the google-cloud-sdk repo); it runs during the
-# system apply, before any SystemPackageSet, so gnupg cannot be a SystemPackage.
 # Keep /var/lib/apt/lists (do not clean): tomei's apt SystemPackage backend runs
 # `apt-get install` without a preceding `apt-get update`, so the `base`/other
 # SystemPackageSets need the package lists to remain present.
+# (gnupg is intentionally NOT installed: tomei v0.2.2 dearmors repository signing
+# keys in-process — terassyi/tomei#283 — so the SystemPackageRepository backend
+# no longer shells out to gpg.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential ca-certificates curl file git gnupg jq sudo unzip xz-utils
+    build-essential ca-certificates curl file git jq sudo unzip xz-utils
 
 RUN useradd -m -s /bin/bash testuser \
     && echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
