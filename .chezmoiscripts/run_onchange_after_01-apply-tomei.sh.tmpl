@@ -23,6 +23,19 @@ if [ ! -d "$TOMEI_DIR" ]; then
     exit 0
 fi
 
+# aqua (which tomei uses to fetch tool metadata and release assets from GitHub)
+# hits the unauthenticated GitHub API rate limit without a token, which surfaces
+# as misleading "package not found" errors during resolution. If no token is set
+# in the environment and gh is authenticated, reuse its token (same approach as
+# `make shell`). gh is itself installed by tomei, so on a first-ever bootstrap it
+# may be absent — pass GITHUB_TOKEN explicitly for that initial run.
+if [ -z "${AQUA_GITHUB_TOKEN:-}" ] && [ -z "${GITHUB_TOKEN:-}" ] && command -v gh &>/dev/null; then
+    if token="$(gh auth token 2>/dev/null)" && [ -n "$token" ]; then
+        export AQUA_GITHUB_TOKEN="$token"
+        echo "Using gh auth token for AQUA_GITHUB_TOKEN"
+    fi
+fi
+
 tomei init --yes
 tomei validate "$TOMEI_DIR"
 
@@ -45,13 +58,7 @@ TOMEI_APPLY_FLAGS="--system"
 if [ "${SKIP_TOMEI_APPLY:-}" = "true" ]; then
     echo "Skipping tomei apply (SKIP_TOMEI_APPLY=true)"
 else
-    # --sync: refresh the cached aqua-registry ref to the latest before
-    # resolving packages. tomei pins the registry ref in its state at first
-    # `tomei init` and never re-syncs it on its own, so a machine whose state
-    # predates a newly-added registry package (e.g. ogulcancelik/herdr) fails
-    # with "package not found" until synced. Tool versions stay pinned, so this
-    # only advances resolution metadata, not the installed tool versions.
-    if ! tomei apply --sync --yes ${TOMEI_APPLY_FLAGS} "$TOMEI_DIR"; then
+    if ! tomei apply --yes ${TOMEI_APPLY_FLAGS} "$TOMEI_DIR"; then
         echo "ERROR: tomei apply failed"
         echo "==> Failed resources:"
         tomei logs --no-color
