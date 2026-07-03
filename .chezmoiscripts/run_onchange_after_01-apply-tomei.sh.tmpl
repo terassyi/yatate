@@ -45,7 +45,13 @@ TOMEI_APPLY_FLAGS="--system"
 if [ "${SKIP_TOMEI_APPLY:-}" = "true" ]; then
     echo "Skipping tomei apply (SKIP_TOMEI_APPLY=true)"
 else
-    if ! tomei apply --yes ${TOMEI_APPLY_FLAGS} "$TOMEI_DIR"; then
+    # --sync: refresh the cached aqua-registry ref to the latest before
+    # resolving packages. tomei pins the registry ref in its state at first
+    # `tomei init` and never re-syncs it on its own, so a machine whose state
+    # predates a newly-added registry package (e.g. ogulcancelik/herdr) fails
+    # with "package not found" until synced. Tool versions stay pinned, so this
+    # only advances resolution metadata, not the installed tool versions.
+    if ! tomei apply --sync --yes ${TOMEI_APPLY_FLAGS} "$TOMEI_DIR"; then
         echo "ERROR: tomei apply failed"
         echo "==> Failed resources:"
         tomei logs --no-color
