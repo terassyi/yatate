@@ -27,7 +27,6 @@ cliTools: aqua.#AquaToolSet & {
 		delta: {package: "dandavison/delta", version: "0.19.2"}
 		zellij: {package: "zellij-org/zellij", version: "v0.44.3"}
 		just: {package: "casey/just", version: "1.51.0"}
-		yq: {package: "mikefarah/yq", version: "v4.53.2"}
 		gh: {package: "cli/cli", version: "v2.93.0"}
 		zoxide: {package: "ajeetdsouza/zoxide", version: "v0.9.9"}
 		gitui: {package: "gitui-org/gitui", version: "v0.28.1"}
@@ -44,6 +43,9 @@ cliTools: aqua.#AquaToolSet & {
 		// bare gz (#272), sets the exec bit (#273), and (v0.2.2) places it under
 		// the registry files[].src name (#281), so the plain aqua path works.
 		"tree-sitter": {package: "tree-sitter/tree-sitter", version: "v0.26.9"}
+		// herdr: agent-aware terminal multiplexer (tmux/zellij-like panes + AI
+		// coding-agent state in a sidebar). Binary name matches the key.
+		herdr: {package: "ogulcancelik/herdr", version: "v0.7.1"}
 	}
 }
 
