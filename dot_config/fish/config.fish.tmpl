@@ -29,6 +29,13 @@ if test -d /nix
     fish_add_path $HOME/.nix-profile/bin
 end
 
+# --- SSH Agent ---
+
+if not set -q SSH_AUTH_SOCK
+    eval (ssh-agent -c) >/dev/null
+    ssh-add ~/.ssh/id_ed25519 2>/dev/null
+end
+
 # ── Aliases ────────────────────────────────────────────
 alias .. 'cd ..'
 alias cl clear
