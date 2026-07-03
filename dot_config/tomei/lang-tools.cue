@@ -36,6 +36,13 @@ goTools: schema.#ToolSet & {
 			// cfssl v1.6.5
 			cfssl: {package: "github.com/cloudflare/cfssl/cmd/cfssl", sha: "96259aa29c9cc9b2f4e04bad7d4bc152e5405dda"}
 			cfssljson: {package: "github.com/cloudflare/cfssl/cmd/cfssljson", sha: "96259aa29c9cc9b2f4e04bad7d4bc152e5405dda"}
+			// yq v4.53.2 — installed via go rather than aqua because yq's
+			// checksums-bsd asset is an rhash multi-algorithm file whose first
+			// line is a CRC32 entry; aqua parses it via file_format: regexp +
+			// algorithm: sha512, which tomei does not implement (its detector
+			// only inspects the first line and reports "unknown checksum file
+			// format"). go install verifies the module via GOSUMDB instead.
+			yq: {package: "github.com/mikefarah/yq/v4", sha: "751d8ad57b84f1794661bc70c0afb92a22ad7b3c"}
 		}
 	}
 }
