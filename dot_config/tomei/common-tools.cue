@@ -49,6 +49,24 @@ cliTools: aqua.#AquaToolSet & {
 	}
 }
 
+// aqua CLI itself, for standalone use outside tomei (tomei's builtin "aqua"
+// installer only consumes the registry and does not provide the binary).
+// aqua is not registered in its own registry, so install via explicit
+// GitHub release download with checksum verification.
+aquaCli: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: name: "aqua"
+	spec: {
+		installerRef: "download"
+		version:      "2.60.1"
+		source: {
+			url: "https://github.com/aquaproj/aqua/releases/download/v\(spec.version)/aqua_\(_os)_\(_arch).tar.gz"
+			checksum: url: "https://github.com/aquaproj/aqua/releases/download/v\(spec.version)/aqua_\(spec.version)_checksums.txt"
+		}
+	}
+}
+
 claudeCode: {
 	apiVersion: "tomei.terassyi.net/v1beta1"
 	kind:       "Tool"
