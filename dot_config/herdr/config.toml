@@ -82,3 +82,13 @@ enabled = false
 
 [advanced]
 scrollback_limit_bytes = 10485760
+
+[remote]
+# Behaviour of the `herdr --remote <ssh-target>` bridge. Setting this explicitly
+# (rather than relying on the default) keeps the intent declarative.
+# When true, herdr runs the bridge ssh through a generated config that includes
+# ~/.ssh/config first and appends ServerAliveInterval/ServerAliveCountMax as a
+# fallback, so idle connections survive NAT/network timeouts while any keepalive
+# you set yourself still wins. Set false to run plain ssh against your ssh config
+# unchanged (this only stops herdr adding its own keepalive, it does not force it off).
+manage_ssh_config = true
