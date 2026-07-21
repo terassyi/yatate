@@ -102,6 +102,33 @@ antigravityCli: {
 	}
 }
 
+// tsh: Teleport client CLI. The aqua registry entry (gravitational/teleport)
+// is type "http" — assets are served from cdn.teleport.dev, not GitHub
+// releases — which tomei's aqua installer cannot consume, so extract tsh from
+// the official release tarball instead. The tarball is the full teleport
+// distribution (linux/darwin share the teleport/ top-level layout); only
+// teleport/tsh is extracted. The check greps the pinned version so bumping
+// spec.version here drives a reinstall.
+tsh: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "tsh"
+		description: "Teleport client CLI"
+	}
+	spec: {
+		version: "18.8.2"
+		_url:    "https://cdn.teleport.dev/teleport-v\(spec.version)-\(_os)-\(_arch)-bin.tar.gz"
+		_install: "mkdir -p ~/.local/bin && curl -fsSL \(_url) | tar -xz -C ~/.local/bin --strip-components=1 teleport/tsh"
+		commands: {
+			install: [_install]
+			update: [_install]
+			check: ["tsh version 2>/dev/null | grep -q 'v\(spec.version)'"]
+			remove: ["rm -f ~/.local/bin/tsh"]
+		}
+	}
+}
+
 k8sTools: aqua.#AquaToolSet & {
 	metadata: name: "k8s-tools"
 	spec: tools: {
