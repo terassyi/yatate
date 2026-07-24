@@ -17,6 +17,61 @@ pwru: {
 	}
 }
 
+// firecracker: lightweight VMM for serverless workloads (linux only)
+firecracker: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "firecracker"
+		description: "Lightweight Virtual Machine Monitor"
+	}
+	spec: {
+		version:    "v1.16.1"
+		privileged: true
+		commands: {
+			install: [
+				"curl -fsSL https://github.com/firecracker-microvm/firecracker/releases/download/\(spec.version)/firecracker-\(spec.version)-\(_fc_arch).tgz | sudo tar -xz -C /usr/local/bin --strip-components=1 --transform=\"s/firecracker-\(spec.version)-\(_fc_arch)$/firecracker/\" --transform=\"s/jailer-\(spec.version)-\(_fc_arch)$/jailer/\" --wildcards \"*/firecracker-\(spec.version)-\(_fc_arch)\" \"*/jailer-\(spec.version)-\(_fc_arch)\"",
+			]
+			check: ["firecracker --version"]
+			remove: ["sudo rm -f /usr/local/bin/firecracker /usr/local/bin/jailer"]
+		}
+	}
+	_fc_arch: {
+		if _arch == "amd64" {
+			"x86_64"
+		}
+		if _arch == "arm64" {
+			"aarch64"
+		}
+	}
+}
+
+// kata-containers: secure container runtime with lightweight VMs (linux only)
+kataContainers: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "kata-containers"
+		description: "Secure container runtime using lightweight virtual machines"
+	}
+	spec: {
+		version:    "4.0.0"
+		privileged: true
+		commands: {
+			install: [
+				"curl -fsSL https://github.com/kata-containers/kata-containers/releases/download/\(spec.version)/kata-static-\(spec.version)-\(_arch).tar.zst | sudo tar -I zstd -x -C /",
+				"sudo ln -sf /opt/kata/bin/kata-runtime /usr/local/bin/kata-runtime",
+				"sudo ln -sf /opt/kata/bin/containerd-shim-kata-v2 /usr/local/bin/containerd-shim-kata-v2",
+			]
+			check: ["kata-runtime --version"]
+			remove: [
+				"sudo rm -f /usr/local/bin/kata-runtime /usr/local/bin/containerd-shim-kata-v2",
+				"sudo rm -rf /opt/kata",
+			]
+		}
+	}
+}
+
 // apt SystemInstaller: wires tomei's built-in APT backend (Debian/Ubuntu).
 // Requires `tomei apply --system`. spec.commands are descriptive metadata —
 // the backend owns the actual apt-get/dpkg invocation.
