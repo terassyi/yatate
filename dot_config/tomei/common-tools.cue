@@ -296,3 +296,55 @@ wasmtime: {
 		}
 	}
 }
+
+// wasm-tools: WebAssembly & Component Model CLI tooling
+wasmTools: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "wasm-tools"
+		description: "CLI tooling for WebAssembly & Component Model"
+	}
+	spec: {
+		installerRef: "download"
+		version:      "v1.254.0"
+		source: {
+			url:         "https://github.com/bytecodealliance/wasm-tools/releases/download/\(spec.version)/wasm-tools-1.254.0-\(_wt_arch)-\(_os).tar.gz"
+			archiveType: "tar.gz"
+		}
+	}
+	_wt_arch: {
+		if _arch == "amd64" {
+			"x86_64"
+		}
+		if _arch == "arm64" {
+			"aarch64"
+		}
+	}
+}
+
+// wit-bindgen: WIT binding generator
+witBindgen: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "wit-bindgen"
+		description: "WIT binding generator for WebAssembly"
+	}
+	spec: {
+		installerRef: "download"
+		version:      "v0.60.0"
+		source: {
+			url:         "https://github.com/bytecodealliance/wit-bindgen/releases/download/\(spec.version)/wit-bindgen-0.60.0-\(_wb_arch)-\(_os).tar.gz"
+			archiveType: "tar.gz"
+		}
+	}
+	_wb_arch: {
+		if _arch == "amd64" {
+			"x86_64"
+		}
+		if _arch == "arm64" {
+			"aarch64"
+		}
+	}
+}
