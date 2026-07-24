@@ -158,6 +158,37 @@ k8sTools: aqua.#AquaToolSet & {
 	}
 }
 
+// k3s: Lightweight Kubernetes
+k3s: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "k3s"
+		description: "Lightweight Kubernetes"
+	}
+	spec: {
+		version:    "v1.36.2+k3s1"
+		privileged: true
+		commands: {
+			install: [
+				"sudo curl -fsSL https://github.com/k3s-io/k3s/releases/download/\(spec.version)/k3s\(_k3s_arch) -o /usr/local/bin/k3s",
+				"sudo chmod +x /usr/local/bin/k3s",
+			]
+			check: ["k3s --version"]
+			remove: ["sudo rm -f /usr/local/bin/k3s"]
+		}
+	}
+	_k3s_arch: {
+		if _arch == "amd64" {
+			""
+		}
+		if _arch != "amd64" {
+			"-\(_arch)"
+		}
+	}
+}
+
+
 // krew: kubectl plugin manager installed via aqua with binaryName override
 krew: {
 	apiVersion: "tomei.terassyi.net/v1beta1"
