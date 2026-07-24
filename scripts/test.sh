@@ -63,7 +63,7 @@ grep -q 'default_shell "fish"' ~/.config/zellij/config.kdl || { echo "FAIL: zell
 grep -q 'pane_frames false' ~/.config/zellij/config.kdl || { echo "FAIL: zellij config - pane_frames"; exit 1; }
 
 echo "==> Ghostty config check"
-grep -q 'initial-command = zellij' ~/.config/ghostty/config || { echo "FAIL: ghostty config - initial-command"; exit 1; }
+grep -q 'background-opacity = 0.9' ~/.config/ghostty/config || { echo "FAIL: ghostty config - background-opacity"; exit 1; }
 
 echo "==> Neovim config check"
 grep -q 'lazy.nvim' ~/.config/nvim/init.lua || { echo "FAIL: nvim init.lua - lazy.nvim bootstrap"; exit 1; }
@@ -113,9 +113,9 @@ test ! -f ~/.ssh/id_ed25519 || { echo "FAIL: id_ed25519 should not exist in test
 test ! -f ~/.ssh/id_ed25519.pub || { echo "FAIL: id_ed25519.pub should not exist in test profile"; exit 1; }
 
 echo "==> Personal SSH key source check"
-encrypted_private_key="$YATATE_SOURCE/dot_ssh/encrypted_id_ed25519.age"
+encrypted_private_key="$YATATE_SOURCE/dot_ssh/encrypted_private_readonly_id_ed25519.age"
 test -f "$encrypted_private_key" || { echo "FAIL: encrypted SSH private key not found in source"; exit 1; }
-test -f "$YATATE_SOURCE/dot_ssh/id_ed25519.pub" || { echo "FAIL: SSH public key not found in source"; exit 1; }
+test -f "$YATATE_SOURCE/dot_ssh/private_readonly_id_ed25519.pub" || { echo "FAIL: SSH public key not found in source"; exit 1; }
 head -1 "$encrypted_private_key" | grep -q "BEGIN AGE ENCRYPTED FILE" || { echo "FAIL: invalid age header"; exit 1; }
 
 echo "==> Personal SSH key recipient check"

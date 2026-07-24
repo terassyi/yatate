@@ -33,6 +33,7 @@ end
 # --- SSH Agent ---
 
 if not set -q SSH_AUTH_SOCK
+    set -x SSH_AUTH_SOCK "$XDG_RUNTIME_DIR/openssh_agent"
     eval (ssh-agent -c) >/dev/null
     ssh-add ~/.ssh/id_ed25519 2>/dev/null
 end
