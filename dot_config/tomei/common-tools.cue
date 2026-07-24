@@ -270,3 +270,29 @@ crane: {
 		binaryName:   "crane"
 	}
 }
+
+// wasmtime: WebAssembly runtime
+wasmtime: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "wasmtime"
+		description: "Standalone WebAssembly runtime"
+	}
+	spec: {
+		installerRef: "download"
+		version:      "v47.0.2"
+		source: {
+			url:         "https://github.com/bytecodealliance/wasmtime/releases/download/\(spec.version)/wasmtime-\(spec.version)-\(_wasmtime_arch)-\(_os).tar.xz"
+			archiveType: "tar.xz"
+		}
+	}
+	_wasmtime_arch: {
+		if _arch == "amd64" {
+			"x86_64"
+		}
+		if _arch == "arm64" {
+			"aarch64"
+		}
+	}
+}
