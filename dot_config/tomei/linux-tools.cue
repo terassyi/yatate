@@ -17,7 +17,34 @@ pwru: {
 	}
 }
 
-// firecracker: lightweight VMM for serverless workloads (linux only)
+// k3s: Lightweight Kubernetes (linux only — upstream ships no darwin build,
+// the release assets are Linux binaries)
+k3s: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "k3s"
+		description: "Lightweight Kubernetes"
+	}
+	spec: {
+		version:    "v1.36.2+k3s1"
+		privileged: true
+		commands: {
+			install: [
+				"sudo curl -fsSL https://github.com/k3s-io/k3s/releases/download/\(spec.version)/k3s\(_k3sArchMap[_arch]) -o /usr/local/bin/k3s",
+				"sudo chmod +x /usr/local/bin/k3s",
+			]
+			check: ["k3s --version"]
+			remove: ["sudo rm -f /usr/local/bin/k3s"]
+		}
+	}
+	// amd64 is the unsuffixed asset (k3s); other arches carry a suffix (k3s-arm64).
+	_k3sArchMap: {amd64: "", arm64: "-arm64"}
+}
+
+// firecracker: lightweight VMM for serverless workloads (linux only).
+// Assets are named firecracker-<ver>-<uname arch>; the tarball holds
+// firecracker-<ver>-<arch> and jailer-<ver>-<arch>, renamed on extraction.
 firecracker: {
 	apiVersion: "tomei.terassyi.net/v1beta1"
 	kind:       "Tool"
@@ -26,22 +53,16 @@ firecracker: {
 		description: "Lightweight Virtual Machine Monitor"
 	}
 	spec: {
+		let _suffix = "\(spec.version)-\(_unameArchMap[_arch])"
+
 		version:    "v1.16.1"
 		privileged: true
 		commands: {
 			install: [
-				"curl -fsSL https://github.com/firecracker-microvm/firecracker/releases/download/\(spec.version)/firecracker-\(spec.version)-\(_fc_arch).tgz | sudo tar -xz -C /usr/local/bin --strip-components=1 --transform=\"s/firecracker-\(spec.version)-\(_fc_arch)$/firecracker/\" --transform=\"s/jailer-\(spec.version)-\(_fc_arch)$/jailer/\" --wildcards \"*/firecracker-\(spec.version)-\(_fc_arch)\" \"*/jailer-\(spec.version)-\(_fc_arch)\"",
+				"curl -fsSL https://github.com/firecracker-microvm/firecracker/releases/download/\(spec.version)/firecracker-\(_suffix).tgz | sudo tar -xz -C /usr/local/bin --strip-components=1 --transform=\"s/firecracker-\(_suffix)$/firecracker/\" --transform=\"s/jailer-\(_suffix)$/jailer/\" --wildcards \"*/firecracker-\(_suffix)\" \"*/jailer-\(_suffix)\"",
 			]
 			check: ["firecracker --version"]
 			remove: ["sudo rm -f /usr/local/bin/firecracker /usr/local/bin/jailer"]
-		}
-	}
-	_fc_arch: {
-		if _arch == "amd64" {
-			"x86_64"
-		}
-		if _arch == "arm64" {
-			"aarch64"
 		}
 	}
 }
@@ -167,6 +188,26 @@ luaBuild: {
 	spec: {
 		installerRef: "apt"
 		packages: ["libreadline-dev"]
+	}
+}
+
+// vm-runtime: system deps for the microVM / sandboxed runtime tools above.
+// zstd provides the `zstd` binary that `tar -I zstd` execs when unpacking
+// kata-containers' kata-static-*.tar.zst release archive; it is not part of a
+// stock Ubuntu install (nor of the CI base image), so kata's install fails with
+// "tar (grandchild): zstd: Cannot exec" without it.
+// Ordering is implicit: tomei has no Tool -> SystemPackage dependency edge
+// (dependsOn exists on Installer only), but system resources are applied by a
+// separate engine that runs to completion before any user tool, and both this
+// set and the privileged kata-containers Tool only run under
+// `tomei apply --system` — so zstd is always in place first.
+vmRuntime: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "SystemPackageSet"
+	metadata: name: "vm-runtime"
+	spec: {
+		installerRef: "apt"
+		packages: ["zstd"]
 	}
 }
 

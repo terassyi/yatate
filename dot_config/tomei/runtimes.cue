@@ -24,12 +24,9 @@ uvRuntime: python.#UvRuntime & {
 	spec: version: "0.11.19"
 }
 
-_zigOSMap: {darwin: "macos", linux: "linux"}
-_zigArchMap: {amd64: "x86_64", arm64: "aarch64"}
-
 zigRuntime: {
-	let _zigOS = _zigOSMap[_os]
-	let _zigArch = _zigArchMap[_arch]
+	let _zigOS = _macosOSMap[_os]
+	let _zigArch = _unameArchMap[_arch]
 
 	apiVersion: "tomei.terassyi.net/v1beta1"
 	kind:       "Runtime"

@@ -1,6 +1,10 @@
 package tomei
 
-import "tomei.terassyi.net/presets/aqua"
+import (
+	"strings"
+
+	"tomei.terassyi.net/presets/aqua"
+)
 
 // Override the builtin "aqua" installer to enable the minimumReleaseAge
 // supply-chain gate: refuse to install any aqua-fetched tool whose upstream
@@ -158,37 +162,6 @@ k8sTools: aqua.#AquaToolSet & {
 	}
 }
 
-// k3s: Lightweight Kubernetes
-k3s: {
-	apiVersion: "tomei.terassyi.net/v1beta1"
-	kind:       "Tool"
-	metadata: {
-		name:        "k3s"
-		description: "Lightweight Kubernetes"
-	}
-	spec: {
-		version:    "v1.36.2+k3s1"
-		privileged: true
-		commands: {
-			install: [
-				"sudo curl -fsSL https://github.com/k3s-io/k3s/releases/download/\(spec.version)/k3s\(_k3s_arch) -o /usr/local/bin/k3s",
-				"sudo chmod +x /usr/local/bin/k3s",
-			]
-			check: ["k3s --version"]
-			remove: ["sudo rm -f /usr/local/bin/k3s"]
-		}
-	}
-	_k3s_arch: {
-		if _arch == "amd64" {
-			""
-		}
-		if _arch != "amd64" {
-			"-\(_arch)"
-		}
-	}
-}
-
-
 // krew: kubectl plugin manager installed via aqua with binaryName override
 krew: {
 	apiVersion: "tomei.terassyi.net/v1beta1"
@@ -271,6 +244,12 @@ crane: {
 	}
 }
 
+// The three bytecodealliance tools below name their assets with the Rust-style
+// target words rather than tomei's platform values (see _unameArchMap /
+// _macosOSMap in tomei_platform.cue). Their archives wrap everything in a single
+// top-level directory, which tomei's placer walks recursively (placer.go
+// findBinary), so no strip handling is needed here.
+
 // wasmtime: WebAssembly runtime
 wasmtime: {
 	apiVersion: "tomei.terassyi.net/v1beta1"
@@ -283,16 +262,9 @@ wasmtime: {
 		installerRef: "download"
 		version:      "v47.0.2"
 		source: {
-			url:         "https://github.com/bytecodealliance/wasmtime/releases/download/\(spec.version)/wasmtime-\(spec.version)-\(_wasmtime_arch)-\(_os).tar.xz"
+			// wasmtime keeps the leading v in the asset name; the sibling repos below do not.
+			url:         "https://github.com/bytecodealliance/wasmtime/releases/download/\(spec.version)/wasmtime-\(spec.version)-\(_unameArchMap[_arch])-\(_macosOSMap[_os]).tar.xz"
 			archiveType: "tar.xz"
-		}
-	}
-	_wasmtime_arch: {
-		if _arch == "amd64" {
-			"x86_64"
-		}
-		if _arch == "arm64" {
-			"aarch64"
 		}
 	}
 }
@@ -309,16 +281,8 @@ wasmTools: {
 		installerRef: "download"
 		version:      "v1.254.0"
 		source: {
-			url:         "https://github.com/bytecodealliance/wasm-tools/releases/download/\(spec.version)/wasm-tools-1.254.0-\(_wt_arch)-\(_os).tar.gz"
+			url:         "https://github.com/bytecodealliance/wasm-tools/releases/download/\(spec.version)/wasm-tools-\(strings.TrimPrefix(spec.version, "v"))-\(_unameArchMap[_arch])-\(_macosOSMap[_os]).tar.gz"
 			archiveType: "tar.gz"
-		}
-	}
-	_wt_arch: {
-		if _arch == "amd64" {
-			"x86_64"
-		}
-		if _arch == "arm64" {
-			"aarch64"
 		}
 	}
 }
@@ -335,16 +299,8 @@ witBindgen: {
 		installerRef: "download"
 		version:      "v0.60.0"
 		source: {
-			url:         "https://github.com/bytecodealliance/wit-bindgen/releases/download/\(spec.version)/wit-bindgen-0.60.0-\(_wb_arch)-\(_os).tar.gz"
+			url:         "https://github.com/bytecodealliance/wit-bindgen/releases/download/\(spec.version)/wit-bindgen-\(strings.TrimPrefix(spec.version, "v"))-\(_unameArchMap[_arch])-\(_macosOSMap[_os]).tar.gz"
 			archiveType: "tar.gz"
-		}
-	}
-	_wb_arch: {
-		if _arch == "amd64" {
-			"x86_64"
-		}
-		if _arch == "arm64" {
-			"aarch64"
 		}
 	}
 }
