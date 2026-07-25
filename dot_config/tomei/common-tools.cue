@@ -1,6 +1,10 @@
 package tomei
 
-import "tomei.terassyi.net/presets/aqua"
+import (
+	"strings"
+
+	"tomei.terassyi.net/presets/aqua"
+)
 
 // Override the builtin "aqua" installer to enable the minimumReleaseAge
 // supply-chain gate: refuse to install any aqua-fetched tool whose upstream
@@ -237,5 +241,66 @@ crane: {
 		version:      "v0.21.6"
 		package:      "google/go-containerregistry"
 		binaryName:   "crane"
+	}
+}
+
+// The three bytecodealliance tools below name their assets with the Rust-style
+// target words rather than tomei's platform values (see _unameArchMap /
+// _macosOSMap in tomei_platform.cue). Their archives wrap everything in a single
+// top-level directory, which tomei's placer walks recursively (placer.go
+// findBinary), so no strip handling is needed here.
+
+// wasmtime: WebAssembly runtime
+wasmtime: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "wasmtime"
+		description: "Standalone WebAssembly runtime"
+	}
+	spec: {
+		installerRef: "download"
+		version:      "v47.0.2"
+		source: {
+			// wasmtime keeps the leading v in the asset name; the sibling repos below do not.
+			url:         "https://github.com/bytecodealliance/wasmtime/releases/download/\(spec.version)/wasmtime-\(spec.version)-\(_unameArchMap[_arch])-\(_macosOSMap[_os]).tar.xz"
+			archiveType: "tar.xz"
+		}
+	}
+}
+
+// wasm-tools: WebAssembly & Component Model CLI tooling
+wasmTools: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "wasm-tools"
+		description: "CLI tooling for WebAssembly & Component Model"
+	}
+	spec: {
+		installerRef: "download"
+		version:      "v1.254.0"
+		source: {
+			url:         "https://github.com/bytecodealliance/wasm-tools/releases/download/\(spec.version)/wasm-tools-\(strings.TrimPrefix(spec.version, "v"))-\(_unameArchMap[_arch])-\(_macosOSMap[_os]).tar.gz"
+			archiveType: "tar.gz"
+		}
+	}
+}
+
+// wit-bindgen: WIT binding generator
+witBindgen: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "wit-bindgen"
+		description: "WIT binding generator for WebAssembly"
+	}
+	spec: {
+		installerRef: "download"
+		version:      "v0.60.0"
+		source: {
+			url:         "https://github.com/bytecodealliance/wit-bindgen/releases/download/\(spec.version)/wit-bindgen-\(strings.TrimPrefix(spec.version, "v"))-\(_unameArchMap[_arch])-\(_macosOSMap[_os]).tar.gz"
+			archiveType: "tar.gz"
+		}
 	}
 }

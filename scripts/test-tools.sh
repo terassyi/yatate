@@ -17,6 +17,8 @@ get_bin_name() {
         neovim)            echo "nvim" ;;
         google-cloud-sdk)  echo "gcloud" ;;
         bindgen-cli)       echo "bindgen" ;;
+        # kata ships kata-runtime + containerd-shim-kata-v2, no `kata-containers` binary
+        kata-containers)   echo "kata-runtime" ;;
         *)                 echo "$1" ;;
     esac
 }
