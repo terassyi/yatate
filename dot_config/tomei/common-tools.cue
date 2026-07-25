@@ -102,6 +102,48 @@ antigravityCli: {
 	}
 }
 
+// tsh: Teleport client CLI. The aqua registry entry (gravitational/teleport)
+// is type "http" — assets are served from cdn.teleport.dev, not GitHub
+// releases — which tomei's aqua installer cannot consume, so extract tsh from
+// the official release tarball instead. The tarball is the full teleport
+// distribution; only the tsh part is extracted.
+//
+// The layout differs per OS: linux ships a bare `teleport/tsh` binary, while
+// darwin ships a signed app bundle `teleport/tsh.app` (no `teleport/tsh`).
+// Touch ID and VNet rely on that bundle, so keep it intact under
+// ~/.local/share/teleport and symlink the executable into ~/.local/bin, which
+// is how Teleport documents the macOS tarball install.
+//
+// The check greps the pinned version so bumping spec.version here drives a
+// reinstall.
+tsh: {
+	apiVersion: "tomei.terassyi.net/v1beta1"
+	kind:       "Tool"
+	metadata: {
+		name:        "tsh"
+		description: "Teleport client CLI"
+	}
+	spec: {
+		version: "18.8.2"
+		_url:    "https://cdn.teleport.dev/teleport-v\(spec.version)-\(_os)-\(_arch)-bin.tar.gz"
+		_installMap: {
+			linux:  "mkdir -p ~/.local/bin && curl -fsSL \(_url) | tar -xz -C ~/.local/bin --strip-components=1 teleport/tsh"
+			darwin: "mkdir -p ~/.local/bin ~/.local/share/teleport && curl -fsSL \(_url) | tar -xz -C ~/.local/share/teleport --strip-components=1 teleport/tsh.app && ln -sf ~/.local/share/teleport/tsh.app/Contents/MacOS/tsh ~/.local/bin/tsh"
+		}
+		_removeMap: {
+			linux:  "rm -f ~/.local/bin/tsh"
+			darwin: "rm -f ~/.local/bin/tsh && rm -rf ~/.local/share/teleport/tsh.app"
+		}
+		_install: _installMap[_os]
+		commands: {
+			install: [_install]
+			update: [_install]
+			check: ["tsh version 2>/dev/null | grep -q 'v\(spec.version)'"]
+			remove: [_removeMap[_os]]
+		}
+	}
+}
+
 k8sTools: aqua.#AquaToolSet & {
 	metadata: name: "k8s-tools"
 	spec: tools: {
@@ -197,4 +239,3 @@ crane: {
 		binaryName:   "crane"
 	}
 }
-
