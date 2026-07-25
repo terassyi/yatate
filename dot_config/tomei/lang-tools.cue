@@ -84,7 +84,7 @@ rustNightly: {
 		description: "Rust nightly toolchain with rust-src (aya-ebpf build-std)"
 	}
 	spec: {
-		version:   "nightly"
+		version: "nightly"
 		dependsOn: ["rust"]
 		commands: {
 			install: ["\(_rustup) toolchain install nightly --profile minimal --component rust-src --no-self-update"]
