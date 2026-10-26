@@ -9,19 +9,24 @@ import (
 
 goRuntime: gopreset.#GoRuntime & {
 	platform: {os: _os, arch: _arch}
-	spec: version: "1.26.4"
+	spec: version: "1.27.3"
 }
 
 rustRuntime: rust.#RustRuntime & {
 	spec: version: "stable"
 }
 
+// pnpm is held on the 10.x line: pnpm 11+ moved pnpm/pnpx/node and global
+// bins under $PNPM_HOME/bin/, but node.#PnpmRuntime (tomei cuemodule v0.2.1,
+// same on upstream main) hardcodes $PNPM_HOME/pnpm for install/check/binDir,
+// so `tomei apply` fails with "pnpm: not found" on 11+. Bump once the preset
+// supports the bin/ layout.
 pnpmRuntime: node.#PnpmRuntime & {
-	spec: version: "10.34.1"
+	spec: version: "10.34.7"
 }
 
 uvRuntime: python.#UvRuntime & {
-	spec: version: "0.11.19"
+	spec: version: "0.13.1"
 }
 
 zigRuntime: {
@@ -34,7 +39,7 @@ zigRuntime: {
 	platform: {os: _os, arch: _arch}
 	spec: {
 		type:    "download"
-		version: "0.16.0"
+		version: "0.17.0"
 		source: {
 			// Zig 0.15+ renamed tarballs to arch-first (zig-<arch>-<os>-<ver>.tar.xz).
 			url: "https://ziglang.org/download/{{.Version}}/zig-\(_zigArch)-\(_zigOS)-{{.Version}}.tar.xz"
@@ -50,7 +55,7 @@ luaRuntime: {
 	metadata: name: "lua"
 	spec: {
 		type:    "delegation"
-		version: "5.5.0"
+		version: "5.5.1"
 		bootstrap: {
 			install:
 				"""

@@ -25,7 +25,7 @@ RUN useradd -m -s /bin/bash testuser \
     && echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # chezmoi
-RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin -t v2.70.0
+RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin -t v2.73.2
 
 USER testuser
 WORKDIR /home/testuser
