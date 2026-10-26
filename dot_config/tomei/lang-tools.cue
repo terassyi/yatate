@@ -19,30 +19,30 @@ goTools: schema.#ToolSet & {
 	spec: {
 		runtimeRef: "go"
 		tools: {
-			// gopls v0.22.0
-			gopls: {package: "golang.org/x/tools/gopls", sha: "235f6b391a9df7be9bfce1c34bc29404412be72c"}
-			// golang.org/x/tools v0.45.0
-			goimports: {package: "golang.org/x/tools/cmd/goimports", sha: "2aabba0e4be44cc8f254ced118a7156d04bbc9f3"}
-			// cue v0.16.1
-			cue: {package: "cuelang.org/go/cmd/cue", sha: "6d609d768f1686f9a3a2a20197cacdbb70e5c79d"}
-			// protobuf v1.36.11
-			"protoc-gen-go": {package: "google.golang.org/protobuf/cmd/protoc-gen-go", sha: "96a179180f0ad6bba9b1e7b6e38d0affb0168e9a"}
+			// gopls v0.24.0
+			gopls: {package: "golang.org/x/tools/gopls", sha: "1f9922d1dcc5836d5c5bcb552c8fed230f885372"}
+			// golang.org/x/tools v0.52.0
+			goimports: {package: "golang.org/x/tools/cmd/goimports", sha: "16517d951552611e7bd358c48ee1051fd0e57b0c"}
+			// cue v0.17.1
+			cue: {package: "cuelang.org/go/cmd/cue", sha: "fc6c0b2ecd3666da92f7053d13fcfbf009b7d7a3"}
+			// protobuf v1.36.12
+			"protoc-gen-go": {package: "google.golang.org/protobuf/cmd/protoc-gen-go", sha: "cdd4c5f7406e82462949c7a65defa9f3029c162d"}
 			// protoc-gen-go-grpc v1.6.2
 			"protoc-gen-go-grpc": {package: "google.golang.org/grpc/cmd/protoc-gen-go-grpc", sha: "1c63fa5f5492fb6cb4cabf9847999ce469505f49"}
-			// delve v1.26.3
-			dlv: {package: "github.com/go-delve/delve/cmd/dlv", sha: "b17676cac1c1b8588ebdc906ea890e8f075cd948"}
-			// gobgp v4.6.0
-			gobgp: {package: "github.com/osrg/gobgp/v4/cmd/gobgp", sha: "51511000d5b566e9c6d20c7b90e6d9cd23140c51"}
-			// cfssl v1.6.5
-			cfssl: {package: "github.com/cloudflare/cfssl/cmd/cfssl", sha: "96259aa29c9cc9b2f4e04bad7d4bc152e5405dda"}
-			cfssljson: {package: "github.com/cloudflare/cfssl/cmd/cfssljson", sha: "96259aa29c9cc9b2f4e04bad7d4bc152e5405dda"}
-			// yq v4.53.2 — installed via go rather than aqua because yq's
+			// delve v1.27.2
+			dlv: {package: "github.com/go-delve/delve/cmd/dlv", sha: "d116177dd925e085ba5dd340f8c644f4a1501a3b"}
+			// gobgp v4.10.0
+			gobgp: {package: "github.com/osrg/gobgp/v4/cmd/gobgp", sha: "da824d99912e02124b53741245ee4186c381adcc"}
+			// cfssl v1.7.1
+			cfssl: {package: "github.com/cloudflare/cfssl/cmd/cfssl", sha: "ab47f0d984778865b3f5b5adf6ba336a15b96c31"}
+			cfssljson: {package: "github.com/cloudflare/cfssl/cmd/cfssljson", sha: "ab47f0d984778865b3f5b5adf6ba336a15b96c31"}
+			// yq v4.54.1 — installed via go rather than aqua because yq's
 			// checksums-bsd asset is an rhash multi-algorithm file whose first
 			// line is a CRC32 entry; aqua parses it via file_format: regexp +
 			// algorithm: sha512, which tomei does not implement (its detector
 			// only inspects the first line and reports "unknown checksum file
 			// format"). go install verifies the module via GOSUMDB instead.
-			yq: {package: "github.com/mikefarah/yq/v4", sha: "751d8ad57b84f1794661bc70c0afb92a22ad7b3c"}
+			yq: {package: "github.com/mikefarah/yq/v4", sha: "504fc38780cc46be8444ea1b72fb55919fc0bfb0"}
 		}
 	}
 }
@@ -53,7 +53,7 @@ binstallInstaller: rust.#BinstallInstaller
 rustTools: rust.#BinstallToolSet & {
 	metadata: name: "rust-tools"
 	spec: tools: {
-		stylua: {package: "stylua", version: "2.5.2"}
+		stylua: {package: "stylua", version: "2.6.0"}
 		eza: {package: "eza"}
 		btm: {package: "bottom"}
 		tokei: {package: "tokei"}
@@ -117,7 +117,7 @@ nodeTools: node.#PnpmToolSet & {
 protoTools: aqua.#AquaToolSet & {
 	metadata: name: "proto-tools"
 	spec: tools: {
-		protoc: {package: "protocolbuffers/protobuf/protoc", version: "v35.0"}
-		grpcurl: {package: "fullstorydev/grpcurl", version: "v1.9.3"}
+		protoc: {package: "protocolbuffers/protobuf/protoc", version: "v36.2"}
+		grpcurl: {package: "fullstorydev/grpcurl", version: "v1.9.4"}
 	}
 }

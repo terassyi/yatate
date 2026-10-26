@@ -48,7 +48,7 @@ else
     # --sync: refresh the cached aqua-registry ref to the latest before
     # resolving packages. tomei pins the registry ref in its state at first
     # `tomei init` and never re-syncs it on its own, so a machine whose state
-    # predates a newly-added registry package (e.g. ogulcancelik/herdr) fails
+    # predates a newly-added registry package (e.g. herdrdev/herdr) fails
     # with "package not found" until synced. Tool versions stay pinned, so this
     # only advances resolution metadata, not the installed tool versions.
     if ! tomei apply --sync --yes ${TOMEI_APPLY_FLAGS} "$TOMEI_DIR"; then

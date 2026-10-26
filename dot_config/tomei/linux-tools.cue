@@ -9,9 +9,9 @@ pwru: {
 	metadata: name: "pwru"
 	spec: {
 		installerRef: "aqua"
-		version:      "v1.0.11"
+		version:      "v1.0.12"
 		source: {
-			url:         "https://github.com/cilium/pwru/releases/download/v1.0.11/pwru-linux-\(_arch).tar.gz"
+			url:         "https://github.com/cilium/pwru/releases/download/v1.0.12/pwru-linux-\(_arch).tar.gz"
 			archiveType: "tar.gz"
 		}
 	}
