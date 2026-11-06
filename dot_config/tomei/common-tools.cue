@@ -40,6 +40,8 @@ cliTools: aqua.#AquaToolSet & {
 		"golangci-lint": {package: "golangci/golangci-lint", version: "v2.15.0"}
 		task: {package: "go-task/task", version: "v3.54.0"}
 		age: {package: "FiloSottile/age", version: "v1.3.2"}
+		// d2: diagram scripting language (renders .d2 to SVG for docs).
+		d2: {package: "d2lang/d2", version: "v0.9.0"}
 		cloudflared: {package: "cloudflare/cloudflared", version: "2026.10.1"}
 		// tree-sitter CLI for nvim-treesitter's `main` branch (generates and
 		// compiles parsers; needed wherever neovim runs). The aqua registry asset
